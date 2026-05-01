@@ -1,0 +1,6 @@
+@SysScore_HostAddress = http://localhost:5070
+
+GET {{SysScore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
