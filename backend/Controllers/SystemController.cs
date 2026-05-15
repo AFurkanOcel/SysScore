@@ -12,11 +12,13 @@ namespace SysScore.Controllers
     {
         private readonly AppDbContext dbContext;
         private readonly ScoreService scoreService;
+        private readonly AIService aiService;
 
-        public SystemController(AppDbContext dbContext, ScoreService scoreService)
+        public SystemController(AppDbContext dbContext, ScoreService scoreService, AIService aiService)
         {
             this.dbContext = dbContext;
             this.scoreService = scoreService;
+            this.aiService = aiService;
         }
 
         [HttpPost]
@@ -26,6 +28,10 @@ namespace SysScore.Controllers
                 ? DateTime.UtcNow
                 : systemData.Timestamp;
             systemData.SecurityScore = scoreService.CalculateScore(systemData);
+            SystemData? previousData = await dbContext.SystemDataRecords
+                .OrderByDescending(data => data.Timestamp)
+                .FirstOrDefaultAsync();
+            systemData.Explanation = await aiService.GenerateExplanationAsync(systemData, previousData);
 
             dbContext.SystemDataRecords.Add(systemData);
             await dbContext.SaveChangesAsync();

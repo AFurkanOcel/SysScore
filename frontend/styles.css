@@ -168,6 +168,11 @@ h2 {
   padding: 22px;
 }
 
+.ai-placeholder p:last-child {
+  margin-bottom: 0;
+  line-height: 1.55;
+}
+
 .metric-grid {
   grid-template-columns: repeat(4, 1fr);
   margin-bottom: 16px;

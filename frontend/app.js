@@ -15,6 +15,7 @@ const elements = {
   processCount: document.getElementById("processCount"),
   recordsTable: document.getElementById("recordsTable"),
   lastUpdated: document.getElementById("lastUpdated"),
+  aiExplanation: document.getElementById("aiExplanation"),
 };
 
 let resourceChart;
@@ -101,6 +102,11 @@ function updateMetrics(latest) {
   elements.ramUsage.textContent = formatPercent(Number(latest?.ramUsage));
   elements.diskUsage.textContent = formatPercent(Number(latest?.diskUsage));
   elements.processCount.textContent = formatNumber(Number(latest?.processCount));
+}
+
+function updateExplanation(latest) {
+  elements.aiExplanation.textContent =
+    latest?.explanation?.trim() || "No explanation is available for the latest record yet.";
 }
 
 function updateRecordsTable(history) {
@@ -279,6 +285,7 @@ async function refreshDashboard() {
 
     updateScore(latest);
     updateMetrics(latest);
+    updateExplanation(latest);
     updateRecordsTable(liveHistory);
     updateCharts(liveHistory);
 
