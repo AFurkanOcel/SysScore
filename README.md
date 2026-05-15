@@ -114,6 +114,11 @@ The frontend dashboard provides:
 
 ## Architecture
 
+SysScore follows a layered and modular architecture with distributed components. 
+It is not a strict microservice architecture; instead, it separates responsibilities 
+across independent components such as the Python monitoring agent, ASP.NET Core Web API, 
+SQL Server database, and standalone frontend dashboard.
+
 ```mermaid
 flowchart LR
     A[Python Agent] -->|POST /api/system-data| B[ASP.NET Core Web API]
@@ -437,7 +442,7 @@ This project demonstrates:
 
 ## Author
 
-**A. Furkan Ocel**
+**A. Furkan ÖCEL**
 
 ---
 
