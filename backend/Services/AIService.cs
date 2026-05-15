@@ -9,7 +9,11 @@ namespace SysScore.Services
         private const double HighCpuThreshold = 80;
         private const double HighRamThreshold = 80;
         private const double HighDiskThreshold = 85;
+        private const double HighSwapThreshold = 25;
         private const int HighProcessThreshold = 300;
+        private const int HighListeningPortThreshold = 12;
+        private const int HighConnectionThreshold = 120;
+        private const double HighUnnecessaryFileSizeMbThreshold = 1024;
         private const int ScoreDropThreshold = 10;
 
         private readonly HttpClient httpClient;
@@ -74,14 +78,52 @@ namespace SysScore.Services
                 findings.Add("Disk usage is high; low free space can affect reliability and logging.");
             }
 
+            if (currentData.SwapUsage >= HighSwapThreshold)
+            {
+                findings.Add("Swap usage is elevated, which may indicate memory pressure beyond normal RAM usage.");
+            }
+
             if (currentData.ProcessCount >= HighProcessThreshold)
             {
                 findings.Add("Process count is above the expected baseline and should be reviewed.");
             }
 
+            if (currentData.HighCpuProcessCount > 0 || currentData.HighMemoryProcessCount > 0)
+            {
+                findings.Add("One or more processes are consuming unusually high CPU or memory resources.");
+            }
+
+            if (currentData.ListeningPortCount >= HighListeningPortThreshold)
+            {
+                findings.Add("The number of listening ports is higher than expected and exposed services should be reviewed.");
+            }
+
+            if (currentData.NetworkConnectionCount >= HighConnectionThreshold)
+            {
+                findings.Add("Network connection count is elevated, which may indicate heavy service activity.");
+            }
+
+            if (currentData.UnnecessaryFileSizeMb >= HighUnnecessaryFileSizeMbThreshold ||
+                currentData.UnnecessaryFileCount >= 1000)
+            {
+                findings.Add("Temporary, cache, or trash files are accumulating and should be reviewed for storage hygiene.");
+            }
+
+            if (previousData is not null &&
+                currentData.ListeningPortCount - previousData.ListeningPortCount >= 5)
+            {
+                findings.Add("Listening ports increased compared with the previous record.");
+            }
+
+            if (previousData is not null &&
+                currentData.UnnecessaryFileSizeMb - previousData.UnnecessaryFileSizeMb >= 512)
+            {
+                findings.Add("Unnecessary file size increased noticeably compared with the previous record.");
+            }
+
             if (findings.Count == 0)
             {
-                findings.Add("System metrics are stable and no immediate resource-based risk is detected.");
+                findings.Add("System metrics are stable and no immediate resource, process, network, or storage hygiene risk is detected.");
             }
 
             return string.Join(" ", findings);
@@ -132,7 +174,14 @@ namespace SysScore.Services
                 CPU: {currentData.CpuUsage:F1}%
                 RAM: {currentData.RamUsage:F1}%
                 Disk: {currentData.DiskUsage:F1}%
+                Swap: {currentData.SwapUsage:F1}%
                 Process count: {currentData.ProcessCount}
+                High CPU processes: {currentData.HighCpuProcessCount}
+                High memory processes: {currentData.HighMemoryProcessCount}
+                Listening ports: {currentData.ListeningPortCount}
+                Network connections: {currentData.NetworkConnectionCount}
+                Unnecessary file count: {currentData.UnnecessaryFileCount}
+                Unnecessary file size MB: {currentData.UnnecessaryFileSizeMb:F1}
                 Security score: {currentData.SecurityScore}
                 Previous score: {previousScore}
                 Deterministic fallback analysis: {fallbackExplanation}

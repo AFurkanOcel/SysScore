@@ -27,10 +27,10 @@ namespace SysScore.Controllers
             systemData.Timestamp = systemData.Timestamp == default
                 ? DateTime.UtcNow
                 : systemData.Timestamp;
-            systemData.SecurityScore = scoreService.CalculateScore(systemData);
             SystemData? previousData = await dbContext.SystemDataRecords
                 .OrderByDescending(data => data.Timestamp)
                 .FirstOrDefaultAsync();
+            systemData.SecurityScore = scoreService.CalculateScore(systemData, previousData);
             systemData.Explanation = await aiService.GenerateExplanationAsync(systemData, previousData);
 
             dbContext.SystemDataRecords.Add(systemData);

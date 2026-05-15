@@ -50,6 +50,38 @@
           <span>Processes</span>
           <strong id="processCount">--</strong>
         </article>
+        <article class="metric-card">
+          <span>Swap Usage</span>
+          <strong id="swapUsage">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Disk Free</span>
+          <strong id="diskFreeGb">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Listening Ports</span>
+          <strong id="listeningPortCount">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Connections</span>
+          <strong id="networkConnectionCount">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>High CPU Processes</span>
+          <strong id="highCpuProcessCount">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>High Memory Processes</span>
+          <strong id="highMemoryProcessCount">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>System Uptime</span>
+          <strong id="systemUptime">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Boot Time</span>
+          <strong id="bootTime">--</strong>
+        </article>
       </section>
 
       <section class="chart-grid" aria-label="System history charts">
@@ -87,16 +119,39 @@
                 <th>RAM</th>
                 <th>Disk</th>
                 <th>Processes</th>
+                <th>Ports</th>
+                <th>Junk</th>
                 <th>Score</th>
               </tr>
             </thead>
             <tbody id="recordsTable">
               <tr>
-                <td colspan="6" class="empty-state">Waiting for backend data</td>
+                <td colspan="8" class="empty-state">Waiting for backend data</td>
               </tr>
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section class="storage-section" aria-label="Storage hygiene overview">
+        <div class="card-header">
+          <h2>Storage Hygiene</h2>
+          <span>Temporary, cache and trash file monitoring</span>
+        </div>
+        <div class="storage-grid">
+          <article class="storage-stat">
+            <span>Unnecessary Files</span>
+            <strong id="unnecessaryFileCount">--</strong>
+          </article>
+          <article class="storage-stat">
+            <span>Total Size</span>
+            <strong id="unnecessaryFileSizeMb">--</strong>
+          </article>
+        </div>
+        <p class="storage-locations" id="unnecessaryFileLocations">Scanned locations will appear here.</p>
+        <ul class="storage-list" id="largestUnnecessaryFiles">
+          <li>No unnecessary file samples detected yet.</li>
+        </ul>
       </section>
     </main>
 

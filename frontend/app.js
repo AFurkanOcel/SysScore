@@ -13,6 +13,18 @@ const elements = {
   ramUsage: document.getElementById("ramUsage"),
   diskUsage: document.getElementById("diskUsage"),
   processCount: document.getElementById("processCount"),
+  swapUsage: document.getElementById("swapUsage"),
+  diskFreeGb: document.getElementById("diskFreeGb"),
+  listeningPortCount: document.getElementById("listeningPortCount"),
+  networkConnectionCount: document.getElementById("networkConnectionCount"),
+  highCpuProcessCount: document.getElementById("highCpuProcessCount"),
+  highMemoryProcessCount: document.getElementById("highMemoryProcessCount"),
+  systemUptime: document.getElementById("systemUptime"),
+  bootTime: document.getElementById("bootTime"),
+  unnecessaryFileCount: document.getElementById("unnecessaryFileCount"),
+  unnecessaryFileSizeMb: document.getElementById("unnecessaryFileSizeMb"),
+  unnecessaryFileLocations: document.getElementById("unnecessaryFileLocations"),
+  largestUnnecessaryFiles: document.getElementById("largestUnnecessaryFiles"),
   recordsTable: document.getElementById("recordsTable"),
   lastUpdated: document.getElementById("lastUpdated"),
   aiExplanation: document.getElementById("aiExplanation"),
@@ -30,6 +42,38 @@ function formatPercent(value) {
 
 function formatNumber(value) {
   return Number.isFinite(value) ? value.toLocaleString("en-US") : "--";
+}
+
+function formatGb(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)} GB` : "--";
+}
+
+function formatMb(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)} MB` : "--";
+}
+
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return "--";
+  }
+
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+
+  if (days > 0) {
+    return `${days}d ${hours}h`;
+  }
+
+  return `${hours}h`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function formatTime(timestamp) {
@@ -102,6 +146,14 @@ function updateMetrics(latest) {
   elements.ramUsage.textContent = formatPercent(Number(latest?.ramUsage));
   elements.diskUsage.textContent = formatPercent(Number(latest?.diskUsage));
   elements.processCount.textContent = formatNumber(Number(latest?.processCount));
+  elements.swapUsage.textContent = formatPercent(Number(latest?.swapUsage));
+  elements.diskFreeGb.textContent = formatGb(Number(latest?.diskFreeGb));
+  elements.listeningPortCount.textContent = formatNumber(Number(latest?.listeningPortCount));
+  elements.networkConnectionCount.textContent = formatNumber(Number(latest?.networkConnectionCount));
+  elements.highCpuProcessCount.textContent = formatNumber(Number(latest?.highCpuProcessCount));
+  elements.highMemoryProcessCount.textContent = formatNumber(Number(latest?.highMemoryProcessCount));
+  elements.systemUptime.textContent = formatDuration(Number(latest?.systemUptimeSeconds));
+  elements.bootTime.textContent = latest?.bootTime ? formatTime(latest.bootTime) : "--";
 }
 
 function updateExplanation(latest) {
@@ -109,12 +161,28 @@ function updateExplanation(latest) {
     latest?.explanation?.trim() || "No explanation is available for the latest record yet.";
 }
 
+function updateStorageHygiene(latest) {
+  elements.unnecessaryFileCount.textContent = formatNumber(Number(latest?.unnecessaryFileCount));
+  elements.unnecessaryFileSizeMb.textContent = formatMb(Number(latest?.unnecessaryFileSizeMb));
+  elements.unnecessaryFileLocations.textContent =
+    latest?.unnecessaryFileLocations || "No scan locations are available.";
+
+  const entries = String(latest?.largestUnnecessaryFiles || "")
+    .split("|")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  elements.largestUnnecessaryFiles.innerHTML = entries.length === 0
+    ? "<li>No unnecessary file samples detected yet.</li>"
+    : entries.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("");
+}
+
 function updateRecordsTable(history) {
   const recentRecords = history.slice(0, MAX_MONITORED_RECORDS);
 
   if (recentRecords.length === 0) {
     elements.recordsTable.innerHTML =
-      '<tr><td colspan="6" class="empty-state">No system records found</td></tr>';
+      '<tr><td colspan="8" class="empty-state">No system records found</td></tr>';
     return;
   }
 
@@ -127,6 +195,8 @@ function updateRecordsTable(history) {
           <td>${formatPercent(Number(record.ramUsage))}</td>
           <td>${formatPercent(Number(record.diskUsage))}</td>
           <td>${formatNumber(Number(record.processCount))}</td>
+          <td>${formatNumber(Number(record.listeningPortCount))}</td>
+          <td>${formatMb(Number(record.unnecessaryFileSizeMb))}</td>
           <td>${formatNumber(Number(record.securityScore))}</td>
         </tr>
       `,
@@ -150,6 +220,7 @@ function createCharts() {
         { label: "CPU", data: [], borderColor: "#3dd6d0", backgroundColor: "rgba(61, 214, 208, 0.12)", tension: 0.35 },
         { label: "RAM", data: [], borderColor: "#76a9ff", backgroundColor: "rgba(118, 169, 255, 0.12)", tension: 0.35 },
         { label: "Disk", data: [], borderColor: "#f4c95d", backgroundColor: "rgba(244, 201, 93, 0.12)", tension: 0.35 },
+        { label: "Swap", data: [], borderColor: "#ff6b6b", backgroundColor: "rgba(255, 107, 107, 0.12)", tension: 0.35 },
       ],
     },
     options: {
@@ -194,13 +265,14 @@ function updateCharts(history) {
   const labels = chartRecords.map((record) => formatTime(record.timestamp));
 
   resourceChart.data.labels = labels;
-  resourceChart.data.datasets[0].data = chartRecords.map((record) => record.cpuUsage);
-  resourceChart.data.datasets[1].data = chartRecords.map((record) => record.ramUsage);
-  resourceChart.data.datasets[2].data = chartRecords.map((record) => record.diskUsage);
+  resourceChart.data.datasets[0].data = chartRecords.map((record) => Number(record.cpuUsage) || 0);
+  resourceChart.data.datasets[1].data = chartRecords.map((record) => Number(record.ramUsage) || 0);
+  resourceChart.data.datasets[2].data = chartRecords.map((record) => Number(record.diskUsage) || 0);
+  resourceChart.data.datasets[3].data = chartRecords.map((record) => Number(record.swapUsage) || 0);
   resourceChart.update("none");
 
   scoreChart.data.labels = labels;
-  scoreChart.data.datasets[0].data = chartRecords.map((record) => record.securityScore);
+  scoreChart.data.datasets[0].data = chartRecords.map((record) => Number(record.securityScore) || 0);
   scoreChart.update("none");
 }
 
@@ -286,6 +358,7 @@ async function refreshDashboard() {
     updateScore(latest);
     updateMetrics(latest);
     updateExplanation(latest);
+    updateStorageHygiene(latest);
     updateRecordsTable(liveHistory);
     updateCharts(liveHistory);
 
