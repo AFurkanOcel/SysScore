@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using SysScore.Data;
 using SysScore.Models;
 using SysScore.Services;
 
@@ -8,36 +10,35 @@ namespace SysScore.Controllers
     [Route("api/system-data")]
     public class SystemController : ControllerBase
     {
-        private static readonly List<SystemData> SystemDataHistory = new();
-        private static int nextId = 1;
-
+        private readonly AppDbContext dbContext;
         private readonly ScoreService scoreService;
 
-        public SystemController(ScoreService scoreService)
+        public SystemController(AppDbContext dbContext, ScoreService scoreService)
         {
+            this.dbContext = dbContext;
             this.scoreService = scoreService;
         }
 
         [HttpPost]
-        public ActionResult<SystemData> Create(SystemData systemData)
+        public async Task<ActionResult<SystemData>> Create(SystemData systemData)
         {
-            systemData.Id = nextId++;
             systemData.Timestamp = systemData.Timestamp == default
                 ? DateTime.UtcNow
                 : systemData.Timestamp;
             systemData.SecurityScore = scoreService.CalculateScore(systemData);
 
-            SystemDataHistory.Add(systemData);
+            dbContext.SystemDataRecords.Add(systemData);
+            await dbContext.SaveChangesAsync();
 
             return Ok(systemData);
         }
 
         [HttpGet("latest")]
-        public ActionResult<SystemData> GetLatest()
+        public async Task<ActionResult<SystemData>> GetLatest()
         {
-            SystemData? latestData = SystemDataHistory
+            SystemData? latestData = await dbContext.SystemDataRecords
                 .OrderByDescending(data => data.Timestamp)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
             if (latestData is null)
             {
@@ -48,10 +49,11 @@ namespace SysScore.Controllers
         }
 
         [HttpGet("history")]
-        public ActionResult<IEnumerable<SystemData>> GetHistory()
+        public async Task<ActionResult<IEnumerable<SystemData>>> GetHistory()
         {
-            IEnumerable<SystemData> history = SystemDataHistory
-                .OrderByDescending(data => data.Timestamp);
+            List<SystemData> history = await dbContext.SystemDataRecords
+                .OrderByDescending(data => data.Timestamp)
+                .ToListAsync();
 
             return Ok(history);
         }
