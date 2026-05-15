@@ -6,9 +6,10 @@ namespace SysScore.Services
     {
         public int CalculateScore(SystemData data)
         {
-            // basit skor: ne kadar düşük kullanım o kadar iyi
-            int score = 100 - (int)((data.CpuUsage + data.RamUsage) / 2);
-            return score;
+            double averageUsage = (data.CpuUsage + data.RamUsage + data.DiskUsage) / 3;
+            int score = 100 - (int)Math.Round(averageUsage);
+
+            return Math.Clamp(score, 0, 100);
         }
     }
 }
