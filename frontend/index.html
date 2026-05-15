@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SysScore Dashboard</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Pardus Security Monitoring</p>
+          <h1>SysScore Dashboard</h1>
+        </div>
+        <div class="connection-status" id="connectionStatus">Connecting</div>
+      </header>
+
+      <section class="score-section" aria-label="Security score overview">
+        <div class="score-panel">
+          <div class="score-copy">
+            <p class="section-label">Security Score</p>
+            <div class="score-value" id="securityScore">--</div>
+            <p class="score-caption" id="scoreCaption">Waiting for system data</p>
+          </div>
+          <div class="score-ring" id="scoreRing" aria-hidden="true">
+            <span id="scoreRingValue">--</span>
+          </div>
+        </div>
+        <div class="ai-placeholder">
+          <p class="section-label">AI Explanation</p>
+          <p>Explanation module will summarize score changes in the next phase.</p>
+        </div>
+      </section>
+
+      <section class="metric-grid" aria-label="Latest system metrics">
+        <article class="metric-card">
+          <span>CPU Usage</span>
+          <strong id="cpuUsage">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>RAM Usage</span>
+          <strong id="ramUsage">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Disk Usage</span>
+          <strong id="diskUsage">--</strong>
+        </article>
+        <article class="metric-card">
+          <span>Processes</span>
+          <strong id="processCount">--</strong>
+        </article>
+      </section>
+
+      <section class="chart-grid" aria-label="System history charts">
+        <article class="chart-card">
+          <div class="card-header">
+            <h2>Resource Usage</h2>
+            <span>CPU / RAM / Disk</span>
+          </div>
+          <div class="chart-frame">
+            <canvas id="resourceChart"></canvas>
+          </div>
+        </article>
+        <article class="chart-card">
+          <div class="card-header">
+            <h2>Security Trend</h2>
+            <span>Score history</span>
+          </div>
+          <div class="chart-frame">
+            <canvas id="scoreChart"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="records-section" aria-label="Recent system records">
+        <div class="card-header">
+          <h2>Recent Records</h2>
+          <span id="lastUpdated">Not updated yet</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>CPU</th>
+                <th>RAM</th>
+                <th>Disk</th>
+                <th>Processes</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody id="recordsTable">
+              <tr>
+                <td colspan="6" class="empty-state">Waiting for backend data</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="./node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
