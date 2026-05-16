@@ -6,10 +6,14 @@ AI-supported security scoring and monitoring platform for Pardus/Linux systems.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-Agent-blue"/>
+  <img src="https://img.shields.io/badge/.NET-8.0-purple"/>
   <img src="https://img.shields.io/badge/Backend-ASP.NET%20Core%208-purple"/>
+  <img src="https://img.shields.io/badge/ORM-Entity%20Framework%20Core-blue"/>
+  <img src="https://img.shields.io/badge/API-REST-green"/>
   <img src="https://img.shields.io/badge/Database-SQL%20Server-red"/>
   <img src="https://img.shields.io/badge/Container-Docker-blue"/>
   <img src="https://img.shields.io/badge/Frontend-Chart.js-green"/>
+  <img src="https://img.shields.io/badge/Platform-Pardus%20%2F%20Linux-lightgrey"/>
   <img src="https://img.shields.io/badge/AI-Fallback%20%2B%20Ollama-orange"/>
   <img src="https://img.shields.io/badge/License-MIT-brightgreen"/>
 </p>
@@ -387,49 +391,37 @@ If Ollama is unavailable, SysScore continues to work with fallback explanations.
 
 ---
 
-## Screenshots
+## Interface Preview
 
-Add screenshots after pushing the project to GitHub.
+### Security Score & AI Explanation
 
-Recommended screenshots:
+The main dashboard panel displays the live security score, severity state, and AI-supported system explanation.
 
-### Dashboard Overview
+<img width="1040" height="375" alt="Security Score   AI Explanation" src="https://github.com/user-attachments/assets/9d216d7d-a846-4a12-8f16-a56597b18e1c" />
 
-Add a screenshot showing the full dark dashboard, security score, metric cards and charts.
+---
 
-```text
-Recommended filename: docs/screenshots/dashboard-overview.png
-```
+### System Metrics Overview
 
-### Live Charts
+Live monitoring metrics including CPU usage, RAM usage, disk usage, process count, swap usage, free disk space, listening ports, active network connections, high-resource processes, system uptime, and boot time information.
 
-Add a screenshot focused on the Chart.js resource usage and security score trend graphs.
+<img width="1039" height="329" alt="System Metrics Overview" src="https://github.com/user-attachments/assets/5075fc11-dd15-4bd4-b7af-92e83a7c63cb" />
 
-```text
-Recommended filename: docs/screenshots/live-charts.png
-```
+---
 
-### Storage Hygiene Panel
+### Monitoring Charts & Recent Records
 
-Add a screenshot showing the temporary/cache/trash monitoring section and the scrollable unnecessary file list.
+Real-time monitoring charts visualize resource usage and security score trends, while the Recent Records table stores the latest monitoring history.
 
-```text
-Recommended filename: docs/screenshots/storage-hygiene.png
-```
+<img width="1023" height="702" alt="Monitoring Charts   Recent Records" src="https://github.com/user-attachments/assets/f9a297d4-a279-4048-a010-a66e9dadae2b" />
 
-### Swagger API
+---
 
-Add a screenshot showing the available backend API endpoints in Swagger.
+### Storage Hygiene Analysis
 
-```text
-Recommended filename: docs/screenshots/swagger-api.png
-```
+Storage hygiene monitoring detects unnecessary files, cache/temp accumulation, and displays the largest files affecting storage cleanliness.
 
-After uploading screenshots, you can embed them like this:
-
-```markdown
-![Dashboard Overview](docs/screenshots/dashboard-overview.png)
-```
+<img width="1028" height="459" alt="Storage Hygiene Analysis" src="https://github.com/user-attachments/assets/b4085a0f-679d-4649-8aab-a56ad1b9d4b8" />
 
 ---
 
