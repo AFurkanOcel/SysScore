@@ -66,14 +66,43 @@ The security score is no longer based only on CPU/RAM/Disk usage. SysScore uses 
 | Network Exposure | Listening ports, active connections |
 | Storage Hygiene | Temporary/cache/trash count and total size |
 | Trend Risk | Sudden increase compared with previous records |
+| Compound Risk | Multiple risky signals appearing together |
+| Persistent Risk | Risky conditions continuing across consecutive records |
 
 The score stays in the `0-100` range:
 
 ```text
-SecurityScore = 100 - weightedRiskPenalty
+SecurityScore = 100 - weightedRiskPenalty + stabilityAdjustment
 ```
 
-This makes the score more explainable and closer to a real security monitoring model.
+The final value is clamped between `0` and `100`.
+
+Current scoring behavior includes:
+
+* **Resource pressure penalty:** CPU, RAM, disk and swap usage are evaluated with threshold-based weights.
+* **Process anomaly penalty:** total process count, high CPU process count and high memory process count affect the score.
+* **Network exposure penalty:** listening ports and active network connections are included.
+* **Storage hygiene penalty:** temporary, cache and trash file count/size can reduce the score.
+* **Trend penalty:** sudden RAM, process, port or unnecessary file growth compared with the previous record is penalized.
+* **Compound risk penalty:** combined risks such as RAM + swap pressure, listening ports + active connections, or high CPU + high memory processes reduce the score more strongly.
+* **Persistent risk penalty:** repeated high RAM, swap, listening port or storage hygiene risk across consecutive records adds a smaller extra penalty.
+* **Stability bonus:** when critical metrics remain normal and no meaningful regression is detected, the model reduces unnecessary penalty so healthy systems are not over-punished.
+
+This makes the score more explainable and closer to a real monitoring model while still remaining deterministic and easy to defend in an academic project.
+
+### Risk Severity Levels
+
+The numeric security score is mapped to a dashboard severity level:
+
+| Score Range | Severity | Visualization Color | Meaning |
+| --- | --- | --- | --- |
+| `90-100` | Excellent | Bright Green | Strong and clean system posture |
+| `75-89` | Stable | Soft Green | Normal and stable operating state |
+| `60-74` | Moderate Risk | Yellow | Needs attention before becoming persistent |
+| `40-59` | High Risk | Orange | Clear risk indicators requiring review |
+| `0-39` | Critical | Red | Critical condition requiring immediate attention |
+
+The severity is used consistently across the score panel, score ring, score text, security trend chart and recent record score cells.
 
 ### AI Explanation Module
 
@@ -86,12 +115,17 @@ Supported behavior:
 * Safe fallback if Ollama is unavailable
 * Score decrease interpretation
 * Resource, process, network and storage hygiene explanations
+* Severity-aware opening text
+* Compound risk explanation
+* Persistent risk explanation
+* Safe explanation length limiting for database persistence
 
 Example fallback explanation:
 
 ```text
-Temporary, cache, or trash files are accumulating and should be reviewed for storage hygiene.
-The number of listening ports is higher than expected and exposed services should be reviewed.
+High risk indicators are present: prioritize investigation of the affected areas.
+Combined RAM and swap pressure suggests sustained memory stress rather than a short resource spike.
+Network exposure is elevated because listening ports and active connections are both above the expected baseline.
 ```
 
 ### Live Dashboard
@@ -100,6 +134,8 @@ The frontend dashboard provides:
 
 * Live security score panel
 * AI explanation panel
+* Severity-aware score ring, score text, score chart and table score cells
+* Professional risk color mapping: Excellent, Stable, Moderate Risk, High Risk and Critical
 * CPU, RAM, disk and process cards
 * Swap, disk free, uptime and boot time cards
 * Listening ports and network connection metrics

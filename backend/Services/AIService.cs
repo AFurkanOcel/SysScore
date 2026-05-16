@@ -15,6 +15,7 @@ namespace SysScore.Services
         private const int HighConnectionThreshold = 120;
         private const double HighUnnecessaryFileSizeMbThreshold = 1024;
         private const int ScoreDropThreshold = 10;
+        private const int MaxExplanationLength = 1000;
 
         private readonly HttpClient httpClient;
         private readonly IConfiguration configuration;
@@ -43,9 +44,9 @@ namespace SysScore.Services
                     fallbackExplanation,
                     timeout.Token);
 
-                return string.IsNullOrWhiteSpace(ollamaExplanation)
+                return LimitExplanationLength(string.IsNullOrWhiteSpace(ollamaExplanation)
                     ? fallbackExplanation
-                    : ollamaExplanation;
+                    : ollamaExplanation);
             }
             catch
             {
@@ -55,12 +56,45 @@ namespace SysScore.Services
 
         private string GenerateFallbackExplanation(SystemData currentData, SystemData? previousData)
         {
-            List<string> findings = new();
+            List<string> findings = new()
+            {
+                GetSeverityLead(currentData.SecurityScore)
+            };
 
             if (previousData is not null &&
                 previousData.SecurityScore - currentData.SecurityScore >= ScoreDropThreshold)
             {
                 findings.Add("Security score decreased compared with the previous record, mainly due to increased resource pressure.");
+            }
+
+            if (currentData.RamUsage >= HighRamThreshold && currentData.SwapUsage >= HighSwapThreshold)
+            {
+                findings.Add("Combined RAM and swap pressure suggests sustained memory stress rather than a short resource spike.");
+            }
+
+            if (currentData.ListeningPortCount >= HighListeningPortThreshold &&
+                currentData.NetworkConnectionCount >= HighConnectionThreshold)
+            {
+                findings.Add("Network exposure is elevated because listening ports and active connections are both above the expected baseline.");
+            }
+
+            if (currentData.HighCpuProcessCount > 0 && currentData.HighMemoryProcessCount > 0)
+            {
+                findings.Add("Process-level anomaly is present because high CPU and high memory consumers are active at the same time.");
+            }
+
+            if (previousData is not null &&
+                currentData.UnnecessaryFileSizeMb >= HighUnnecessaryFileSizeMbThreshold &&
+                previousData.UnnecessaryFileSizeMb >= HighUnnecessaryFileSizeMbThreshold)
+            {
+                findings.Add("Storage hygiene risk appears persistent because temporary, cache, or trash file size remains high across records.");
+            }
+
+            if (previousData is not null &&
+                currentData.ProcessCount >= HighProcessThreshold &&
+                previousData.ProcessCount >= HighProcessThreshold)
+            {
+                findings.Add("Process count remains persistently high and should be reviewed for unnecessary background activity.");
             }
 
             if (currentData.CpuUsage >= HighCpuThreshold)
@@ -121,12 +155,32 @@ namespace SysScore.Services
                 findings.Add("Unnecessary file size increased noticeably compared with the previous record.");
             }
 
-            if (findings.Count == 0)
+            return LimitExplanationLength(string.Join(" ", findings));
+        }
+
+        private static string GetSeverityLead(int securityScore)
+        {
+            if (securityScore >= 90)
             {
-                findings.Add("System metrics are stable and no immediate resource, process, network, or storage hygiene risk is detected.");
+                return "Excellent posture: system indicators are healthy and no immediate risk pattern is detected.";
             }
 
-            return string.Join(" ", findings);
+            if (securityScore >= 75)
+            {
+                return "System appears stable: monitored indicators remain within acceptable ranges.";
+            }
+
+            if (securityScore >= 60)
+            {
+                return "Moderate risk detected: review the highlighted indicators before they become persistent.";
+            }
+
+            if (securityScore >= 40)
+            {
+                return "High risk indicators are present: prioritize investigation of the affected areas.";
+            }
+
+            return "Critical system pressure detected: immediate review is recommended.";
         }
 
         private async Task<string?> GenerateOllamaExplanationAsync(
@@ -193,6 +247,16 @@ namespace SysScore.Services
             int timeoutSeconds = configuration.GetValue("AI:TimeoutSeconds", 3);
 
             return TimeSpan.FromSeconds(Math.Max(1, timeoutSeconds));
+        }
+
+        private static string LimitExplanationLength(string explanation)
+        {
+            if (explanation.Length <= MaxExplanationLength)
+            {
+                return explanation;
+            }
+
+            return explanation[..(MaxExplanationLength - 3)].TrimEnd() + "...";
         }
 
         private sealed record OllamaRequest(

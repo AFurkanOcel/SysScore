@@ -17,7 +17,7 @@
       </header>
 
       <section class="score-section" aria-label="Security score overview">
-        <div class="score-panel">
+        <div class="score-panel" id="scorePanel">
           <div class="score-copy">
             <p class="section-label">Security Score</p>
             <div class="score-value" id="securityScore">--</div>
@@ -28,7 +28,10 @@
           </div>
         </div>
         <div class="ai-placeholder">
-          <p class="section-label">AI Explanation</p>
+          <div class="ai-heading">
+            <p class="section-label">AI Explanation</p>
+            <span class="ai-severity" id="aiSeverity">Waiting</span>
+          </div>
           <p id="aiExplanation">Waiting for backend explanation.</p>
         </div>
       </section>

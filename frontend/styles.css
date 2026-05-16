@@ -7,9 +7,11 @@
   --text: #e7edf4;
   --muted: #95a4b5;
   --cyan: #3dd6d0;
-  --green: #78db85;
-  --amber: #f4c95d;
-  --red: #ff6b6b;
+  --excellent: #4ade80;
+  --green: #86d993;
+  --amber: #facc15;
+  --orange: #fb923c;
+  --red: #ef4444;
   --blue: #76a9ff;
 }
 
@@ -126,12 +128,16 @@ h2 {
   gap: 20px;
   align-items: center;
   padding: 26px;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .score-value {
   font-size: clamp(4rem, 13vw, 8rem);
   font-weight: 800;
   line-height: 0.9;
+  transition: color 180ms ease;
 }
 
 .score-caption,
@@ -143,6 +149,7 @@ h2 {
 
 .score-caption {
   margin-bottom: 0;
+  transition: color 180ms ease;
 }
 
 .score-ring {
@@ -152,6 +159,9 @@ h2 {
   place-items: center;
   border-radius: 50%;
   background: conic-gradient(var(--green) 0deg, #263241 0deg);
+  transition:
+    filter 180ms ease,
+    background 180ms ease;
 }
 
 .score-ring span {
@@ -163,15 +173,128 @@ h2 {
   background: var(--surface-strong);
   font-size: 1.8rem;
   font-weight: 800;
+  transition: color 180ms ease;
 }
 
 .ai-placeholder {
   padding: 22px;
 }
 
+.ai-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.ai-heading .section-label {
+  margin-bottom: 0;
+}
+
+.ai-severity {
+  border: 1px solid rgba(149, 164, 181, 0.22);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .ai-placeholder p:last-child {
   margin-bottom: 0;
   line-height: 1.55;
+}
+
+.score-panel.risk-excellent {
+  border-color: rgba(74, 222, 128, 0.5);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 34px rgba(74, 222, 128, 0.08);
+}
+
+.score-panel.risk-stable {
+  border-color: rgba(134, 217, 147, 0.45);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 30px rgba(134, 217, 147, 0.07);
+}
+
+.score-panel.risk-moderate {
+  border-color: rgba(250, 204, 21, 0.5);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 30px rgba(250, 204, 21, 0.07);
+}
+
+.score-panel.risk-high {
+  border-color: rgba(251, 146, 60, 0.5);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 30px rgba(251, 146, 60, 0.08);
+}
+
+.score-panel.risk-critical {
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22), 0 0 34px rgba(239, 68, 68, 0.1);
+}
+
+.risk-excellent {
+  color: var(--excellent);
+}
+
+.risk-stable {
+  color: var(--green);
+}
+
+.risk-moderate {
+  color: var(--amber);
+}
+
+.risk-high {
+  color: var(--orange);
+}
+
+.risk-critical {
+  color: var(--red);
+}
+
+.score-ring.risk-excellent {
+  filter: drop-shadow(0 0 12px rgba(74, 222, 128, 0.18));
+}
+
+.score-ring.risk-stable {
+  filter: drop-shadow(0 0 10px rgba(134, 217, 147, 0.16));
+}
+
+.score-ring.risk-moderate {
+  filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.16));
+}
+
+.score-ring.risk-high {
+  filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.17));
+}
+
+.score-ring.risk-critical {
+  filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.2));
+}
+
+.ai-severity.risk-excellent {
+  border-color: rgba(74, 222, 128, 0.34);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.ai-severity.risk-stable {
+  border-color: rgba(134, 217, 147, 0.32);
+  background: rgba(134, 217, 147, 0.08);
+}
+
+.ai-severity.risk-moderate {
+  border-color: rgba(250, 204, 21, 0.34);
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.ai-severity.risk-high {
+  border-color: rgba(251, 146, 60, 0.34);
+  background: rgba(251, 146, 60, 0.08);
+}
+
+.ai-severity.risk-critical {
+  border-color: rgba(239, 68, 68, 0.36);
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .metric-grid {
@@ -305,6 +428,38 @@ tbody tr {
 
 tbody tr:hover {
   background: rgba(61, 214, 208, 0.055);
+}
+
+.score-cell {
+  font-weight: 800;
+}
+
+.score-cell span {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.score-cell.risk-excellent span {
+  color: rgba(74, 222, 128, 0.78);
+}
+
+.score-cell.risk-stable span {
+  color: rgba(134, 217, 147, 0.78);
+}
+
+.score-cell.risk-moderate span {
+  color: rgba(250, 204, 21, 0.78);
+}
+
+.score-cell.risk-high span {
+  color: rgba(251, 146, 60, 0.78);
+}
+
+.score-cell.risk-critical span {
+  color: rgba(239, 68, 68, 0.78);
 }
 
 .empty-state {

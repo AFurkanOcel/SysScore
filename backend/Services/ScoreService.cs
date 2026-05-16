@@ -11,7 +11,11 @@ namespace SysScore.Services
                 CalculateProcessPenalty(data) +
                 CalculateNetworkPenalty(data) +
                 CalculateStorageHygienePenalty(data) +
-                CalculateTrendPenalty(data, previousData);
+                CalculateTrendPenalty(data, previousData) +
+                CalculateCompoundRiskPenalty(data) +
+                CalculatePersistentRiskPenalty(data, previousData);
+
+            penalty = Math.Max(0, penalty - CalculateStabilityBonus(data, previousData));
 
             int score = 100 - (int)Math.Round(penalty);
             return Math.Clamp(score, 0, 100);
@@ -90,6 +94,93 @@ namespace SysScore.Services
             }
 
             return Math.Min(penalty, 10);
+        }
+
+        private static double CalculateCompoundRiskPenalty(SystemData data)
+        {
+            double penalty = 0;
+
+            if (data.RamUsage >= 80 && data.SwapUsage >= 25)
+            {
+                penalty += 4;
+            }
+
+            if (data.ListeningPortCount >= 12 && data.NetworkConnectionCount >= 120)
+            {
+                penalty += 3;
+            }
+
+            if (data.HighCpuProcessCount > 0 && data.HighMemoryProcessCount > 0)
+            {
+                penalty += 3;
+            }
+
+            return Math.Min(penalty, 10);
+        }
+
+        private static double CalculatePersistentRiskPenalty(SystemData data, SystemData? previousData)
+        {
+            if (previousData is null)
+            {
+                return 0;
+            }
+
+            double penalty = 0;
+
+            if (data.RamUsage >= 80 && previousData.RamUsage >= 80)
+            {
+                penalty += 2;
+            }
+
+            if (data.SwapUsage >= 25 && previousData.SwapUsage >= 25)
+            {
+                penalty += 2;
+            }
+
+            if (data.ListeningPortCount >= 12 && previousData.ListeningPortCount >= 12)
+            {
+                penalty += 2;
+            }
+
+            if (data.UnnecessaryFileSizeMb >= 1024 && previousData.UnnecessaryFileSizeMb >= 1024)
+            {
+                penalty += 2;
+            }
+
+            return Math.Min(penalty, 8);
+        }
+
+        private static double CalculateStabilityBonus(SystemData data, SystemData? previousData)
+        {
+            bool metricsAreStable =
+                data.CpuUsage < 70 &&
+                data.RamUsage < 65 &&
+                data.DiskUsage < 75 &&
+                data.SwapUsage < 10 &&
+                data.ProcessCount < 250 &&
+                data.HighCpuProcessCount == 0 &&
+                data.HighMemoryProcessCount == 0 &&
+                data.ListeningPortCount <= 8 &&
+                data.NetworkConnectionCount < 80 &&
+                data.UnnecessaryFileSizeMb < 512;
+
+            if (!metricsAreStable)
+            {
+                return 0;
+            }
+
+            if (previousData is null)
+            {
+                return 3;
+            }
+
+            bool noMeaningfulRegression =
+                data.RamUsage - previousData.RamUsage < 5 &&
+                data.ProcessCount - previousData.ProcessCount < 25 &&
+                data.ListeningPortCount - previousData.ListeningPortCount < 2 &&
+                data.UnnecessaryFileSizeMb - previousData.UnnecessaryFileSizeMb < 128;
+
+            return noMeaningfulRegression ? 5 : 2;
         }
 
         private static double ThresholdPenalty(double value, double warningThreshold, double criticalThreshold, double maxPenalty)

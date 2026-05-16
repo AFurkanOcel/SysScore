@@ -3,8 +3,49 @@ const REFRESH_INTERVAL_MS = 5000;
 const HISTORY_LIMIT = 20;
 const MAX_MONITORED_RECORDS = 100;
 
+const RISK_SEVERITIES = {
+  excellent: {
+    label: "Excellent",
+    caption: "Excellent posture",
+    className: "risk-excellent",
+    color: "#4ade80",
+    backgroundColor: "rgba(74, 222, 128, 0.14)",
+  },
+  stable: {
+    label: "Stable",
+    caption: "Stable system state",
+    className: "risk-stable",
+    color: "#86d993",
+    backgroundColor: "rgba(134, 217, 147, 0.14)",
+  },
+  moderate: {
+    label: "Moderate Risk",
+    caption: "Moderate risk detected",
+    className: "risk-moderate",
+    color: "#facc15",
+    backgroundColor: "rgba(250, 204, 21, 0.14)",
+  },
+  high: {
+    label: "High Risk",
+    caption: "High risk requires review",
+    className: "risk-high",
+    color: "#fb923c",
+    backgroundColor: "rgba(251, 146, 60, 0.14)",
+  },
+  critical: {
+    label: "Critical",
+    caption: "Critical risk condition",
+    className: "risk-critical",
+    color: "#ef4444",
+    backgroundColor: "rgba(239, 68, 68, 0.14)",
+  },
+};
+
+const RISK_CLASS_NAMES = Object.values(RISK_SEVERITIES).map((severity) => severity.className);
+
 const elements = {
   connectionStatus: document.getElementById("connectionStatus"),
+  scorePanel: document.getElementById("scorePanel"),
   securityScore: document.getElementById("securityScore"),
   scoreCaption: document.getElementById("scoreCaption"),
   scoreRing: document.getElementById("scoreRing"),
@@ -27,6 +68,7 @@ const elements = {
   largestUnnecessaryFiles: document.getElementById("largestUnnecessaryFiles"),
   recordsTable: document.getElementById("recordsTable"),
   lastUpdated: document.getElementById("lastUpdated"),
+  aiSeverity: document.getElementById("aiSeverity"),
   aiExplanation: document.getElementById("aiExplanation"),
 };
 
@@ -108,22 +150,85 @@ function setConnectionStatus(isOnline, message) {
   elements.connectionStatus.classList.toggle("offline", !isOnline);
 }
 
-function getScoreColor(score) {
-  if (score >= 75) {
-    return "#78db85";
+function getRiskSeverity(score, latest, history) {
+  if (!Number.isFinite(score)) {
+    return null;
   }
 
-  if (score >= 45) {
-    return "#f4c95d";
-  }
+  const riskKey = score >= 90
+    ? "excellent"
+    : score >= 75
+      ? "stable"
+      : score >= 60
+        ? "moderate"
+        : score >= 40
+          ? "high"
+          : "critical";
 
-  return "#ff6b6b";
+  return {
+    ...RISK_SEVERITIES[riskKey],
+    compoundRiskActive: hasCompoundRisk(latest),
+    persistentRiskActive: hasPersistentRisk(latest, history),
+  };
 }
 
-function updateScore(latest) {
+function hasCompoundRisk(latest) {
+  if (!latest) {
+    return false;
+  }
+
+  const ramUsage = Number(latest.ramUsage);
+  const swapUsage = Number(latest.swapUsage);
+  const listeningPortCount = Number(latest.listeningPortCount);
+  const networkConnectionCount = Number(latest.networkConnectionCount);
+  const highCpuProcessCount = Number(latest.highCpuProcessCount);
+  const highMemoryProcessCount = Number(latest.highMemoryProcessCount);
+
+  return (
+    (ramUsage >= 80 && swapUsage >= 25) ||
+    (listeningPortCount >= 12 && networkConnectionCount >= 120) ||
+    (highCpuProcessCount > 0 && highMemoryProcessCount > 0)
+  );
+}
+
+function hasPersistentRisk(latest, history) {
+  if (!latest || !Array.isArray(history) || history.length < 2) {
+    return false;
+  }
+
+  const previous = history.find((record) => getRecordKey(record) !== getRecordKey(latest));
+
+  if (!previous) {
+    return false;
+  }
+
+  return (
+    (Number(latest.ramUsage) >= 80 && Number(previous.ramUsage) >= 80) ||
+    (Number(latest.swapUsage) >= 25 && Number(previous.swapUsage) >= 25) ||
+    (Number(latest.listeningPortCount) >= 12 && Number(previous.listeningPortCount) >= 12) ||
+    (Number(latest.unnecessaryFileSizeMb) >= 1024 && Number(previous.unnecessaryFileSizeMb) >= 1024)
+  );
+}
+
+function applyRiskClass(element, severity) {
+  if (!element) {
+    return;
+  }
+
+  element.classList.remove(...RISK_CLASS_NAMES);
+
+  if (severity) {
+    element.classList.add(severity.className);
+  }
+}
+
+function updateScore(latest, history = monitoredRecords) {
   const score = Number(latest?.securityScore);
 
   if (!Number.isFinite(score)) {
+    [elements.scorePanel, elements.securityScore, elements.scoreRing, elements.scoreRingValue, elements.scoreCaption].forEach(
+      (element) => applyRiskClass(element, null),
+    );
     elements.securityScore.textContent = "--";
     elements.scoreRingValue.textContent = "--";
     elements.scoreCaption.textContent = "Waiting for system data";
@@ -131,14 +236,17 @@ function updateScore(latest) {
     return;
   }
 
-  const scoreColor = getScoreColor(score);
+  const severity = getRiskSeverity(score, latest, history);
   const scoreDegrees = Math.max(0, Math.min(score, 100)) * 3.6;
+
+  [elements.scorePanel, elements.securityScore, elements.scoreRing, elements.scoreRingValue, elements.scoreCaption].forEach(
+    (element) => applyRiskClass(element, severity),
+  );
 
   elements.securityScore.textContent = score;
   elements.scoreRingValue.textContent = score;
-  elements.scoreCaption.textContent =
-    score >= 75 ? "System status is stable" : score >= 45 ? "System requires attention" : "High resource pressure detected";
-  elements.scoreRing.style.background = `conic-gradient(${scoreColor} ${scoreDegrees}deg, #263241 0deg)`;
+  elements.scoreCaption.textContent = severity.caption;
+  elements.scoreRing.style.background = `conic-gradient(${severity.color} ${scoreDegrees}deg, #263241 0deg)`;
 }
 
 function updateMetrics(latest) {
@@ -156,7 +264,12 @@ function updateMetrics(latest) {
   elements.bootTime.textContent = latest?.bootTime ? formatTime(latest.bootTime) : "--";
 }
 
-function updateExplanation(latest) {
+function updateExplanation(latest, history = monitoredRecords) {
+  const score = Number(latest?.securityScore);
+  const severity = getRiskSeverity(score, latest, history);
+
+  applyRiskClass(elements.aiSeverity, severity);
+  elements.aiSeverity.textContent = severity?.label || "Waiting";
   elements.aiExplanation.textContent =
     latest?.explanation?.trim() || "No explanation is available for the latest record yet.";
 }
@@ -188,7 +301,10 @@ function updateRecordsTable(history) {
 
   elements.recordsTable.innerHTML = recentRecords
     .map(
-      (record) => `
+      (record) => {
+        const severity = getRiskSeverity(Number(record.securityScore), record, recentRecords);
+
+        return `
         <tr>
           <td>${formatTime(record.timestamp)}</td>
           <td>${formatPercent(Number(record.cpuUsage))}</td>
@@ -197,9 +313,13 @@ function updateRecordsTable(history) {
           <td>${formatNumber(Number(record.processCount))}</td>
           <td>${formatNumber(Number(record.listeningPortCount))}</td>
           <td>${formatMb(Number(record.unnecessaryFileSizeMb))}</td>
-          <td>${formatNumber(Number(record.securityScore))}</td>
+          <td class="score-cell ${severity?.className || ""}">
+            ${formatNumber(Number(record.securityScore))}
+            <span>${severity?.label || "Unknown"}</span>
+          </td>
         </tr>
-      `,
+      `;
+      },
     )
     .join("");
 }
@@ -273,6 +393,14 @@ function updateCharts(history) {
 
   scoreChart.data.labels = labels;
   scoreChart.data.datasets[0].data = chartRecords.map((record) => Number(record.securityScore) || 0);
+  const latestChartRecord = history[0];
+  const chartSeverity = getRiskSeverity(Number(latestChartRecord?.securityScore), latestChartRecord, history);
+
+  if (chartSeverity) {
+    scoreChart.data.datasets[0].borderColor = chartSeverity.color;
+    scoreChart.data.datasets[0].backgroundColor = chartSeverity.backgroundColor;
+  }
+
   scoreChart.update("none");
 }
 
@@ -355,9 +483,9 @@ async function refreshDashboard() {
     ]);
     const liveHistory = mergeMonitoredRecords(latest, history);
 
-    updateScore(latest);
+    updateScore(latest, liveHistory);
     updateMetrics(latest);
-    updateExplanation(latest);
+    updateExplanation(latest, liveHistory);
     updateStorageHygiene(latest);
     updateRecordsTable(liveHistory);
     updateCharts(liveHistory);
