@@ -36,6 +36,40 @@ The system is built with a safe fallback-first design. Even if the optional loca
 
 ---
 
+## Interface Preview
+
+### Security Score & AI Explanation
+
+The main dashboard panel displays the live security score, severity state, and AI-supported system explanation.
+
+<img width="1040" height="375" alt="Security Score   AI Explanation" src="https://github.com/user-attachments/assets/9d216d7d-a846-4a12-8f16-a56597b18e1c" />
+
+---
+
+### System Metrics Overview
+
+Live monitoring metrics including CPU usage, RAM usage, disk usage, process count, swap usage, free disk space, listening ports, active network connections, high-resource processes, system uptime, and boot time information.
+
+<img width="1039" height="329" alt="System Metrics Overview" src="https://github.com/user-attachments/assets/5075fc11-dd15-4bd4-b7af-92e83a7c63cb" />
+
+---
+
+### Monitoring Charts & Recent Records
+
+Real-time monitoring charts visualize resource usage and security score trends, while the Recent Records table stores the latest monitoring history.
+
+<img width="1023" height="702" alt="Monitoring Charts   Recent Records" src="https://github.com/user-attachments/assets/f9a297d4-a279-4048-a010-a66e9dadae2b" />
+
+---
+
+### Storage Hygiene Analysis
+
+Storage hygiene monitoring detects unnecessary files, cache/temp accumulation, and displays the largest files affecting storage cleanliness.
+
+<img width="1028" height="459" alt="Storage Hygiene Analysis" src="https://github.com/user-attachments/assets/b4085a0f-679d-4649-8aab-a56ad1b9d4b8" />
+
+---
+
 ## Key Features
 
 ### System Monitoring Agent
@@ -388,40 +422,6 @@ To enable optional Ollama support, set:
 ```
 
 If Ollama is unavailable, SysScore continues to work with fallback explanations.
-
----
-
-## Interface Preview
-
-### Security Score & AI Explanation
-
-The main dashboard panel displays the live security score, severity state, and AI-supported system explanation.
-
-<img width="1040" height="375" alt="Security Score   AI Explanation" src="https://github.com/user-attachments/assets/9d216d7d-a846-4a12-8f16-a56597b18e1c" />
-
----
-
-### System Metrics Overview
-
-Live monitoring metrics including CPU usage, RAM usage, disk usage, process count, swap usage, free disk space, listening ports, active network connections, high-resource processes, system uptime, and boot time information.
-
-<img width="1039" height="329" alt="System Metrics Overview" src="https://github.com/user-attachments/assets/5075fc11-dd15-4bd4-b7af-92e83a7c63cb" />
-
----
-
-### Monitoring Charts & Recent Records
-
-Real-time monitoring charts visualize resource usage and security score trends, while the Recent Records table stores the latest monitoring history.
-
-<img width="1023" height="702" alt="Monitoring Charts   Recent Records" src="https://github.com/user-attachments/assets/f9a297d4-a279-4048-a010-a66e9dadae2b" />
-
----
-
-### Storage Hygiene Analysis
-
-Storage hygiene monitoring detects unnecessary files, cache/temp accumulation, and displays the largest files affecting storage cleanliness.
-
-<img width="1028" height="459" alt="Storage Hygiene Analysis" src="https://github.com/user-attachments/assets/b4085a0f-679d-4649-8aab-a56ad1b9d4b8" />
 
 ---
 
