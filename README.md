@@ -16,6 +16,7 @@ AI-supported security scoring and monitoring platform for Pardus/Linux systems.
   <img src="https://img.shields.io/badge/Platform-Pardus%20%2F%20Linux-lightgrey"/>
   <img src="https://img.shields.io/badge/AI-Fallback%20%2B%20Ollama-orange"/>
   <img src="https://img.shields.io/badge/License-MIT-brightgreen"/>
+  <img src="https://img.shields.io/badge/Status-Completed-brightgreen"/>
 </p>
 
 ---
