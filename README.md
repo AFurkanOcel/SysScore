@@ -43,7 +43,7 @@ The system is built with a safe fallback-first design. Even if the optional loca
 
 The main dashboard panel displays the live security score, severity state, and AI-supported system explanation.
 
-<img width="1040" height="375" alt="Security Score   AI Explanation" src="https://github.com/user-attachments/assets/9d216d7d-a846-4a12-8f16-a56597b18e1c" />
+<img width="1040" height="375" alt="Security Score   AI Explanation" src="assets/screenshots/security-score-ai-explanation.png" />
 
 ---
 
@@ -51,7 +51,7 @@ The main dashboard panel displays the live security score, severity state, and A
 
 Live monitoring metrics including CPU usage, RAM usage, disk usage, process count, swap usage, free disk space, listening ports, active network connections, high-resource processes, system uptime, and boot time information.
 
-<img width="1039" height="329" alt="System Metrics Overview" src="https://github.com/user-attachments/assets/5075fc11-dd15-4bd4-b7af-92e83a7c63cb" />
+<img width="1039" height="329" alt="System Metrics Overview" src="assets/screenshots/system-metrics-overview.png" />
 
 ---
 
@@ -59,7 +59,7 @@ Live monitoring metrics including CPU usage, RAM usage, disk usage, process coun
 
 Real-time monitoring charts visualize resource usage and security score trends, while the Recent Records table stores the latest monitoring history.
 
-<img width="1023" height="702" alt="Monitoring Charts   Recent Records" src="https://github.com/user-attachments/assets/f9a297d4-a279-4048-a010-a66e9dadae2b" />
+<img width="1023" height="702" alt="Monitoring Charts   Recent Records" src="assets/screenshots/monitoring-charts-recent-records.png" />
 
 ---
 
@@ -67,7 +67,7 @@ Real-time monitoring charts visualize resource usage and security score trends, 
 
 Storage hygiene monitoring detects unnecessary files, cache/temp accumulation, and displays the largest files affecting storage cleanliness.
 
-<img width="1028" height="459" alt="Storage Hygiene Analysis" src="https://github.com/user-attachments/assets/b4085a0f-679d-4649-8aab-a56ad1b9d4b8" />
+<img width="1028" height="459" alt="Storage Hygiene Analysis" src="assets/screenshots/storage-hygiene-analysis.png" />
 
 ---
 
@@ -237,6 +237,13 @@ SysScore/
 ├── agent/
 │   ├── agent.py
 │   └── requirements.txt
+│
+├── assets/
+│   └── screenshots/
+│       ├── security-score-ai-explanation.png
+│       ├── system-metrics-overview.png
+│       ├── monitoring-charts-recent-records.png
+│       └── storage-hygiene-analysis.png
 │
 ├── backend/
 │   ├── Controllers/
