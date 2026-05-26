@@ -233,18 +233,11 @@ SysScore/
 │── docker-compose.yml
 │── README.md
 │── LICENSE
-│
 ├── agent/
 │   ├── agent.py
 │   └── requirements.txt
-│
 ├── assets/
 │   └── screenshots/
-│       ├── security-score-ai-explanation.png
-│       ├── system-metrics-overview.png
-│       ├── monitoring-charts-recent-records.png
-│       └── storage-hygiene-analysis.png
-│
 ├── backend/
 │   ├── Controllers/
 │   │   └── SystemController.cs
@@ -259,7 +252,6 @@ SysScore/
 │   ├── Program.cs
 │   ├── appsettings.json
 │   └── SysScore.csproj
-│
 └── frontend/
     ├── index.html
     ├── styles.css
