@@ -6,7 +6,6 @@ AI-supported security scoring and monitoring platform for Pardus/Linux systems.
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-Agent-blue"/>
-  <img src="https://img.shields.io/badge/.NET-8.0-purple"/>
   <img src="https://img.shields.io/badge/Backend-ASP.NET%20Core%208-purple"/>
   <img src="https://img.shields.io/badge/ORM-Entity%20Framework%20Core-blue"/>
   <img src="https://img.shields.io/badge/API-REST-green"/>
@@ -15,7 +14,7 @@ AI-supported security scoring and monitoring platform for Pardus/Linux systems.
   <img src="https://img.shields.io/badge/Frontend-Chart.js-green"/>
   <img src="https://img.shields.io/badge/Platform-Pardus%20%2F%20Linux-lightgrey"/>
   <img src="https://img.shields.io/badge/AI-Fallback%20%2B%20Ollama-orange"/>
-  <img src="https://img.shields.io/badge/License-MIT-brightgreen"/>
+  <img src="https://img.shields.io/badge/Architecture-Modular%20Layered-FF8C00"/>
   <img src="https://img.shields.io/badge/Status-Completed-brightgreen"/>
 </p>
 
