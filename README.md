@@ -1,7 +1,7 @@
 <h1 align="center">SysScore</h1>
 
 <p align="center">
-AI-supported security scoring and monitoring platform for Pardus/Linux systems.
+AI-supported threat detection, security scoring and monitoring platform for Pardus/Linux systems.
 </p>
 
 <p align="center">
@@ -22,17 +22,18 @@ AI-supported security scoring and monitoring platform for Pardus/Linux systems.
 
 ## Project Overview
 
-SysScore is a graduation project designed to collect system metrics from a Pardus/Linux machine, calculate a professional security score, store historical monitoring data, visualize system health in a live dashboard, and explain score changes with an AI-supported explanation module.
+SysScore is a graduation project designed to collect system and network telemetry from a Pardus/Linux machine, detect port-scan/worm-like network activity, calculate a professional security score, store historical monitoring data, visualize system health in a live dashboard, and explain score changes with an AI-supported explanation module.
 
 The platform follows an end-to-end monitoring flow:
 
 ```text
-Python Agent -> ASP.NET Core Web API -> SQL Server -> Frontend Dashboard
+Python Agent -> ASP.NET Core Web API -> Threat Detection + Scoring -> SQL Server
                                       |
-                                      -> AI / Rule-based Explanation
+                                      -> AI / Rule-based Explanation -> Frontend Dashboard
 ```
 
 The system is built with a safe fallback-first design. Even if the optional local LLM integration is unavailable, the backend continues to calculate scores and generate deterministic rule-based explanations.
+The dashboard is Turkish by default for Pardus-focused usage and includes an English language toggle.
 
 ---
 
@@ -48,7 +49,7 @@ The main dashboard panel displays the live security score, severity state, and A
 
 ### System Metrics Overview
 
-Live monitoring metrics including CPU usage, RAM usage, disk usage, process count, swap usage, free disk space, listening ports, active network connections, high-resource processes, system uptime, and boot time information.
+Live monitoring metrics are available inside the collapsible system details panel. The main dashboard prioritizes threat status, security score and actionable security findings.
 
 <img width="1039" height="329" alt="System Metrics Overview" src="assets/screenshots/system-metrics-overview.png" />
 
@@ -86,12 +87,41 @@ The Python agent collects live Linux system metrics using `psutil`:
 * High memory process count
 * Network connection count
 * Listening port count
+* Established, SYN_SENT and TIME_WAIT connection counts
+* Unique remote address and remote port counts
+* Network connection delta
+* Inbound and outbound packet rates
 * System uptime
 * Boot time
 * Temporary/cache/trash file statistics
 * Largest unnecessary file samples
 
 The agent sends data to the backend through REST API calls at a configurable polling interval.
+
+### Port Scan / Worm-like Network Activity Detection
+
+SysScore includes a dedicated threat detection layer for network behavior commonly seen during port scanning and worm-like propagation attempts.
+
+Detected signals include:
+
+* Sudden network connection growth
+* High `SYN_SENT` connection count
+* High `TIME_WAIT` connection count
+* Many unique remote ports or remote addresses
+* Increased listening port exposure
+* Repeated suspicious network behavior across records
+
+The platform is intentionally designed as an IDS-style detection and recommendation system. It does not automatically modify firewall rules, because automatic blocking can cause false-positive availability issues. Instead, it produces evidence-based alerts and safe remediation guidance.
+
+Recommended response examples:
+
+```text
+ss -tulpen
+sudo ufw status
+Review exposed services
+Restrict unnecessary open ports
+Validate suspicious remote addresses before blocking
+```
 
 ### Professional Security Scoring
 
@@ -106,6 +136,7 @@ The security score is no longer based only on CPU/RAM/Disk usage. SysScore uses 
 | Trend Risk | Sudden increase compared with previous records |
 | Compound Risk | Multiple risky signals appearing together |
 | Persistent Risk | Risky conditions continuing across consecutive records |
+| Threat Detection | Port scan / worm-like network activity score |
 
 The score stays in the `0-100` range:
 
@@ -124,6 +155,7 @@ Current scoring behavior includes:
 * **Trend penalty:** sudden RAM, process, port or unnecessary file growth compared with the previous record is penalized.
 * **Compound risk penalty:** combined risks such as RAM + swap pressure, listening ports + active connections, or high CPU + high memory processes reduce the score more strongly.
 * **Persistent risk penalty:** repeated high RAM, swap, listening port or storage hygiene risk across consecutive records adds a smaller extra penalty.
+* **Threat detection penalty:** high or critical port-scan/worm-like network activity reduces the score more visibly.
 * **Stability bonus:** when critical metrics remain normal and no meaningful regression is detected, the model reduces unnecessary penalty so healthy systems are not over-punished.
 
 This makes the score more explainable and closer to a real monitoring model while still remaining deterministic and easy to defend in an academic project.
@@ -148,11 +180,12 @@ Each system record receives an explanation.
 
 Supported behavior:
 
-* Deterministic fallback explanation
+* Turkish deterministic fallback explanation
 * Optional Ollama local LLM enhancement
 * Safe fallback if Ollama is unavailable
 * Score decrease interpretation
 * Resource, process, network and storage hygiene explanations
+* Port scan / worm-like activity explanation
 * Severity-aware opening text
 * Compound risk explanation
 * Persistent risk explanation
@@ -161,9 +194,9 @@ Supported behavior:
 Example fallback explanation:
 
 ```text
-High risk indicators are present: prioritize investigation of the affected areas.
-Combined RAM and swap pressure suggests sustained memory stress rather than a short resource spike.
-Network exposure is elevated because listening ports and active connections are both above the expected baseline.
+Yüksek risk göstergeleri mevcut: etkilenen alanlar öncelikli olarak incelenmelidir.
+Port Scan / Worm-like Network Activity tespit edildi.
+Kanıtlar: Ağ bağlantı sayısı kısa sürede arttı. Kısa aralıkta farklı uzak portlara bağlantı davranışı tespit edildi.
 ```
 
 ### Live Dashboard
@@ -172,10 +205,11 @@ The frontend dashboard provides:
 
 * Live security score panel
 * AI explanation panel
+* Active Threat Status panel
+* Turkish default UI with English language toggle
 * Severity-aware score ring, score text, score chart and table score cells
 * Professional risk color mapping: Excellent, Stable, Moderate Risk, High Risk and Critical
-* CPU, RAM, disk and process cards
-* Swap, disk free, uptime and boot time cards
+* Collapsible system details for CPU, RAM, disk, process and network metrics
 * Listening ports and network connection metrics
 * High CPU / high memory process indicators
 * Chart.js resource usage graph
@@ -194,12 +228,13 @@ Although the system is not designed as a fully distributed microservice platform
 ```mermaid
 flowchart LR
     A[Python Agent] -->|POST /api/system-data| B[ASP.NET Core Web API]
-    B --> C[ScoreService]
-    B --> D[AIService]
-    C --> E[(SQL Server)]
-    D --> E
-    E -->|GET latest/history| F[Frontend Dashboard]
-    F -->|Chart.js| G[Live Charts]
+    B --> C[ThreatDetectionService]
+    C --> D[ScoreService]
+    B --> E[AIService]
+    D --> F[(SQL Server)]
+    E --> F
+    F -->|GET latest/history| G[Frontend Dashboard]
+    G -->|Chart.js| H[Live Charts]
 ```
 
 ### Data Flow
@@ -208,6 +243,7 @@ flowchart LR
 sequenceDiagram
     participant Agent as Python Agent
     participant API as ASP.NET Core API
+    participant Threat as ThreatDetectionService
     participant Score as ScoreService
     participant AI as AIService
     participant DB as SQL Server
@@ -215,6 +251,7 @@ sequenceDiagram
 
     Agent->>API: POST system metrics
     API->>DB: Read previous record
+    API->>Threat: Detect port scan / worm-like activity
     API->>Score: Calculate weighted security score
     API->>AI: Generate explanation
     API->>DB: Store enriched record
@@ -236,6 +273,8 @@ SysScore/
 │   ├── agent.py
 │   └── requirements.txt
 ├── assets/
+│   ├── icons/
+│   │   └── sysscore_icon.png
 │   └── screenshots/
 ├── backend/
 │   ├── Controllers/
@@ -246,18 +285,23 @@ SysScore/
 │   │   └── SystemData.cs
 │   ├── Services/
 │   │   ├── ScoreService.cs
+│   │   ├── ThreatDetectionService.cs
 │   │   └── AIService.cs
 │   ├── Migrations/
 │   ├── Program.cs
 │   ├── appsettings.json
 │   └── SysScore.csproj
-└── frontend/
-    ├── index.html
-    ├── styles.css
-    ├── app.js
-    ├── server.js
-    ├── package.json
-    └── package-lock.json
+│
+├── frontend/
+│   ├── index.html
+│   ├── styles.css
+│   ├── app.js
+│   ├── server.js
+│   ├── package.json
+│   └── package-lock.json
+│
+└── tools/
+    └── worm_like_network_demo.py
 ```
 
 ---
@@ -277,6 +321,7 @@ SysScore/
 | Frontend | HTML, CSS, JavaScript |
 | Charts | Chart.js |
 | AI Explanation | Rule-based fallback, optional Ollama |
+| Threat Detection | Rule-based port scan / worm-like activity detection |
 | License | MIT |
 
 ---
@@ -303,6 +348,14 @@ Example payload:
   "highMemoryProcessCount": 0,
   "networkConnectionCount": 74,
   "listeningPortCount": 7,
+  "establishedConnectionCount": 20,
+  "synSentConnectionCount": 0,
+  "timeWaitConnectionCount": 12,
+  "uniqueRemoteAddressCount": 3,
+  "uniqueRemotePortCount": 8,
+  "networkConnectionDelta": 2,
+  "outboundPacketRate": 32.5,
+  "inboundPacketRate": 29.4,
   "systemUptimeSeconds": 14049,
   "bootTime": "2026-05-15T18:14:18Z",
   "unnecessaryFileCount": 5353,
@@ -375,7 +428,7 @@ pip install -r agent/requirements.txt
 Run the agent:
 
 ```bash
-python agent/agent.py
+agent/venv/bin/python agent/agent.py
 ```
 
 Optional configuration:
@@ -383,7 +436,7 @@ Optional configuration:
 ```bash
 export SYSSCORE_API_URL=http://localhost:5070/api/system-data
 export SYSSCORE_POLL_INTERVAL_SECONDS=5
-python agent/agent.py
+agent/venv/bin/python agent/agent.py
 ```
 
 ### 6. Run Frontend Dashboard
@@ -398,6 +451,21 @@ Dashboard:
 ```text
 http://localhost:5173
 ```
+
+### 7. Run Safe Threat Detection Demo
+
+The demo script does not run malware and does not require root privileges. It creates temporary localhost listeners and short-lived local connections to simulate worm-like network activity safely.
+
+```bash
+agent/venv/bin/python tools/worm_like_network_demo.py
+```
+
+Expected result:
+
+* The agent observes a temporary network burst.
+* The backend detects `Port Scan / Worm-like Network Activity`.
+* The dashboard shows an active threat alert.
+* The security score decreases and the explanation includes evidence and recommended actions.
 
 ---
 
@@ -429,6 +497,8 @@ If Ollama is unavailable, SysScore continues to work with fallback explanations.
 * The unnecessary file monitoring feature does not delete files.
 * The agent only scans limited locations: `/tmp`, `~/.cache`, and `~/.local/share/Trash/files`.
 * Permission errors during scanning are ignored safely.
+* The worm-like demo script only uses localhost and does not attack external systems.
+* Automatic firewall blocking is intentionally not enabled to avoid false-positive availability issues.
 * AI explanation failure does not stop backend processing.
 * The system is intended for local monitoring and academic demonstration.
 
@@ -441,6 +511,7 @@ If Ollama is unavailable, SysScore continues to work with fallback explanations.
 * Open port risk classification
 * Failed login monitoring
 * Firewall status monitoring
+* Admin-approved automatic IP blocking
 * Package update and patch status monitoring
 * Role-based dashboard authentication
 * Exportable reports
@@ -460,6 +531,7 @@ This project demonstrates:
 * Real-time dashboard design
 * Chart.js visualization
 * Rule-based security scoring
+* Port scan / worm-like network activity detection
 * AI-supported explanation design
 * Safe fallback engineering
 

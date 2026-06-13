@@ -2,39 +2,40 @@ const API_BASE_URL = window.SYSSCORE_API_BASE_URL || "http://localhost:5070";
 const REFRESH_INTERVAL_MS = 5000;
 const HISTORY_LIMIT = 20;
 const MAX_MONITORED_RECORDS = 100;
+const DEFAULT_LANGUAGE = "tr";
 
 const RISK_SEVERITIES = {
   excellent: {
-    label: "Excellent",
-    caption: "Excellent posture",
+    label: { tr: "Mükemmel", en: "Excellent" },
+    caption: { tr: "Mükemmel güvenlik durumu", en: "Excellent posture" },
     className: "risk-excellent",
     color: "#4ade80",
     backgroundColor: "rgba(74, 222, 128, 0.14)",
   },
   stable: {
-    label: "Stable",
-    caption: "Stable system state",
+    label: { tr: "Stabil", en: "Stable" },
+    caption: { tr: "Stabil sistem durumu", en: "Stable system state" },
     className: "risk-stable",
     color: "#86d993",
     backgroundColor: "rgba(134, 217, 147, 0.14)",
   },
   moderate: {
-    label: "Moderate Risk",
-    caption: "Moderate risk detected",
+    label: { tr: "Orta Risk", en: "Moderate Risk" },
+    caption: { tr: "Orta seviye risk tespit edildi", en: "Moderate risk detected" },
     className: "risk-moderate",
     color: "#facc15",
     backgroundColor: "rgba(250, 204, 21, 0.14)",
   },
   high: {
-    label: "High Risk",
-    caption: "High risk requires review",
+    label: { tr: "Yüksek Risk", en: "High Risk" },
+    caption: { tr: "Yüksek risk inceleme gerektiriyor", en: "High risk requires review" },
     className: "risk-high",
     color: "#fb923c",
     backgroundColor: "rgba(251, 146, 60, 0.14)",
   },
   critical: {
-    label: "Critical",
-    caption: "Critical risk condition",
+    label: { tr: "Kritik", en: "Critical" },
+    caption: { tr: "Kritik risk durumu", en: "Critical risk condition" },
     className: "risk-critical",
     color: "#ef4444",
     backgroundColor: "rgba(239, 68, 68, 0.14)",
@@ -42,6 +43,145 @@ const RISK_SEVERITIES = {
 };
 
 const RISK_CLASS_NAMES = Object.values(RISK_SEVERITIES).map((severity) => severity.className);
+
+const THREAT_CLASS_NAMES = ["threat-none", "threat-low", "threat-medium", "threat-high", "threat-critical"];
+
+const TRANSLATIONS = {
+  tr: {
+    eyebrow: "Pardus Güvenlik İzleme",
+    appTitle: "SysScore Güvenlik Paneli",
+    securityScore: "Güvenlik Skoru",
+    waitingForData: "Sistem verisi bekleniyor",
+    aiExplanationTitle: "Güvenlik Açıklaması",
+    waitingExplanation: "Backend açıklaması bekleniyor.",
+    noExplanation: "Son kayıt için açıklama henüz mevcut değil.",
+    online: "Çevrimiçi",
+    offline: "Çevrimdışı",
+    updated: "Güncellendi",
+    records: "Kayıt",
+    connectionError: "Bağlantı hatası",
+    threatStatusTitle: "Aktif Tehdit Durumu",
+    noThreatHeadline: "Tehdit Yok",
+    suspiciousHeadline: "Şüpheli Ağ Aktivitesi",
+    highThreatHeadline: "Yüksek Riskli Ağ Davranışı",
+    criticalThreatHeadline: "Kritik Tehdit Davranışı",
+    threatType: "Tehdit Tipi",
+    threatScore: "Tehdit Skoru",
+    threatDetectedAt: "Son Tespit",
+    threatEvidence: "Kanıtlar",
+    recommendedActions: "Önerilen Müdahale",
+    noThreatType: "Aktif tehdit yok",
+    noThreatEvidence: "Aktif ağ tabanlı saldırı davranışı tespit edilmedi.",
+    noThreatAction: "Normal izlemeye devam edin.",
+    threatNone: "Yok",
+    threatLow: "Düşük",
+    threatMedium: "Orta",
+    threatHigh: "Yüksek",
+    threatCritical: "Kritik",
+    resourceUsage: "Kaynak Kullanımı",
+    resourceUsageSubtitle: "CPU / RAM / Disk",
+    securityTrend: "Güvenlik Trendi",
+    scoreHistory: "Skor geçmişi",
+    recentRecords: "Son Kayıtlar",
+    notUpdated: "Henüz güncellenmedi",
+    tableTime: "Zaman",
+    tableProcesses: "Process",
+    tableThreat: "Tehdit",
+    tablePorts: "Port",
+    tableScore: "Skor",
+    noRecords: "Sistem kaydı bulunamadı",
+    waitingBackend: "Backend verisi bekleniyor",
+    systemDetails: "Sistem Ayrıntıları",
+    systemDetailsHint: "CPU, RAM, disk, process ve ağ metrikleri",
+    cpuUsage: "CPU Kullanımı",
+    ramUsage: "RAM Kullanımı",
+    diskUsage: "Disk Kullanımı",
+    processes: "Process",
+    swapUsage: "Swap Kullanımı",
+    diskFree: "Boş Disk",
+    listeningPorts: "Dinleyen Portlar",
+    connections: "Bağlantılar",
+    highCpuProcesses: "Yüksek CPU Process",
+    highMemoryProcesses: "Yüksek Bellek Process",
+    systemUptime: "Sistem Çalışma Süresi",
+    bootTime: "Açılış Zamanı",
+    storageHygiene: "Depolama Hijyeni",
+    storageSubtitle: "Geçici, cache ve çöp dosyası izleme",
+    unnecessaryFiles: "Gereksiz Dosyalar",
+    totalSize: "Toplam Boyut",
+    noStorageLocations: "Tarama konumu mevcut değil.",
+    scannedLocationsWaiting: "Taranan konumlar burada görünecek.",
+    noUnnecessaryFiles: "Henüz gereksiz dosya örneği tespit edilmedi.",
+    unknown: "Bilinmiyor",
+  },
+  en: {
+    eyebrow: "Pardus Security Monitoring",
+    appTitle: "SysScore Dashboard",
+    securityScore: "Security Score",
+    waitingForData: "Waiting for system data",
+    aiExplanationTitle: "AI Explanation",
+    waitingExplanation: "Waiting for backend explanation.",
+    noExplanation: "No explanation is available for the latest record yet.",
+    online: "Online",
+    offline: "Offline",
+    updated: "Updated",
+    records: "Records",
+    connectionError: "Connection error",
+    threatStatusTitle: "Active Threat Status",
+    noThreatHeadline: "No Threat",
+    suspiciousHeadline: "Suspicious Network Activity",
+    highThreatHeadline: "High-Risk Network Behavior",
+    criticalThreatHeadline: "Critical Threat Behavior",
+    threatType: "Threat Type",
+    threatScore: "Threat Score",
+    threatDetectedAt: "Last Detection",
+    threatEvidence: "Evidence",
+    recommendedActions: "Recommended Actions",
+    noThreatType: "No active threat",
+    noThreatEvidence: "No active network-based attack behavior detected.",
+    noThreatAction: "Continue normal monitoring.",
+    threatNone: "None",
+    threatLow: "Low",
+    threatMedium: "Medium",
+    threatHigh: "High",
+    threatCritical: "Critical",
+    resourceUsage: "Resource Usage",
+    resourceUsageSubtitle: "CPU / RAM / Disk",
+    securityTrend: "Security Trend",
+    scoreHistory: "Score history",
+    recentRecords: "Recent Records",
+    notUpdated: "Not updated yet",
+    tableTime: "Time",
+    tableProcesses: "Processes",
+    tableThreat: "Threat",
+    tablePorts: "Ports",
+    tableScore: "Score",
+    noRecords: "No system records found",
+    waitingBackend: "Waiting for backend data",
+    systemDetails: "System Details",
+    systemDetailsHint: "CPU, RAM, disk, process and network metrics",
+    cpuUsage: "CPU Usage",
+    ramUsage: "RAM Usage",
+    diskUsage: "Disk Usage",
+    processes: "Processes",
+    swapUsage: "Swap Usage",
+    diskFree: "Disk Free",
+    listeningPorts: "Listening Ports",
+    connections: "Connections",
+    highCpuProcesses: "High CPU Processes",
+    highMemoryProcesses: "High Memory Processes",
+    systemUptime: "System Uptime",
+    bootTime: "Boot Time",
+    storageHygiene: "Storage Hygiene",
+    storageSubtitle: "Temporary, cache and trash file monitoring",
+    unnecessaryFiles: "Unnecessary Files",
+    totalSize: "Total Size",
+    noStorageLocations: "No scan locations are available.",
+    scannedLocationsWaiting: "Scanned locations will appear here.",
+    noUnnecessaryFiles: "No unnecessary file samples detected yet.",
+    unknown: "Unknown",
+  },
+};
 
 const elements = {
   connectionStatus: document.getElementById("connectionStatus"),
@@ -70,6 +210,15 @@ const elements = {
   lastUpdated: document.getElementById("lastUpdated"),
   aiSeverity: document.getElementById("aiSeverity"),
   aiExplanation: document.getElementById("aiExplanation"),
+  languageButtons: document.querySelectorAll("[data-language]"),
+  threatPanel: document.getElementById("threatPanel"),
+  threatHeadline: document.getElementById("threatHeadline"),
+  threatLevel: document.getElementById("threatLevel"),
+  threatType: document.getElementById("threatType"),
+  threatScore: document.getElementById("threatScore"),
+  threatDetectedAt: document.getElementById("threatDetectedAt"),
+  threatEvidenceList: document.getElementById("threatEvidenceList"),
+  recommendedActionsList: document.getElementById("recommendedActionsList"),
 };
 
 let resourceChart;
@@ -77,6 +226,7 @@ let scoreChart;
 let refreshTimerId;
 let isRefreshing = false;
 let monitoredRecords = [];
+let currentLanguage = DEFAULT_LANGUAGE;
 
 function formatPercent(value) {
   return Number.isFinite(value) ? `${value.toFixed(1)}%` : "--";
@@ -92,6 +242,31 @@ function formatGb(value) {
 
 function formatMb(value) {
   return Number.isFinite(value) ? `${value.toFixed(1)} MB` : "--";
+}
+
+function t(key) {
+  return TRANSLATIONS[currentLanguage]?.[key] || TRANSLATIONS.en[key] || key;
+}
+
+function localized(value) {
+  if (value && typeof value === "object") {
+    return value[currentLanguage] || value.en || Object.values(value)[0];
+  }
+
+  return value;
+}
+
+function splitList(value, fallback) {
+  const items = String(value || "")
+    .split("|")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return items.length > 0 ? items : [fallback];
+}
+
+function renderList(element, items) {
+  element.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 }
 
 function formatDuration(seconds) {
@@ -145,9 +320,41 @@ function parseBackendTimestamp(timestamp) {
 }
 
 function setConnectionStatus(isOnline, message) {
-  elements.connectionStatus.textContent = message;
+  elements.connectionStatus.textContent = message || (isOnline ? t("online") : t("offline"));
   elements.connectionStatus.classList.toggle("online", isOnline);
   elements.connectionStatus.classList.toggle("offline", !isOnline);
+}
+
+function applyLanguage(language) {
+  currentLanguage = TRANSLATIONS[language] ? language : DEFAULT_LANGUAGE;
+  document.documentElement.lang = currentLanguage;
+
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+
+  elements.languageButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.language === currentLanguage);
+  });
+
+  if (scoreChart) {
+    scoreChart.data.datasets[0].label = currentLanguage === "tr" ? "Güvenlik Skoru" : "Security Score";
+    scoreChart.update("none");
+  }
+
+  if (resourceChart) {
+    resourceChart.data.datasets[0].label = "CPU";
+    resourceChart.data.datasets[1].label = currentLanguage === "tr" ? "RAM" : "RAM";
+    resourceChart.data.datasets[2].label = currentLanguage === "tr" ? "Disk" : "Disk";
+    resourceChart.data.datasets[3].label = "Swap";
+    resourceChart.update("none");
+  }
+
+  const latest = monitoredRecords[0];
+  updateScore(latest, monitoredRecords);
+  updateExplanation(latest, monitoredRecords);
+  updateThreatPanel(latest);
+  updateRecordsTable(monitoredRecords);
 }
 
 function getRiskSeverity(score, latest, history) {
@@ -231,7 +438,7 @@ function updateScore(latest, history = monitoredRecords) {
     );
     elements.securityScore.textContent = "--";
     elements.scoreRingValue.textContent = "--";
-    elements.scoreCaption.textContent = "Waiting for system data";
+    elements.scoreCaption.textContent = t("waitingForData");
     elements.scoreRing.style.background = "conic-gradient(#263241 0deg, #263241 0deg)";
     return;
   }
@@ -245,7 +452,7 @@ function updateScore(latest, history = monitoredRecords) {
 
   elements.securityScore.textContent = score;
   elements.scoreRingValue.textContent = score;
-  elements.scoreCaption.textContent = severity.caption;
+  elements.scoreCaption.textContent = localized(severity.caption);
   elements.scoreRing.style.background = `conic-gradient(${severity.color} ${scoreDegrees}deg, #263241 0deg)`;
 }
 
@@ -269,16 +476,110 @@ function updateExplanation(latest, history = monitoredRecords) {
   const severity = getRiskSeverity(score, latest, history);
 
   applyRiskClass(elements.aiSeverity, severity);
-  elements.aiSeverity.textContent = severity?.label || "Waiting";
+  elements.aiSeverity.textContent = severity ? localized(severity.label) : t("waitingForData");
   elements.aiExplanation.textContent =
-    latest?.explanation?.trim() || "No explanation is available for the latest record yet.";
+    latest?.explanation?.trim() || t("noExplanation");
+}
+
+function getThreatLevelKey(level) {
+  return String(level || "None").toLowerCase();
+}
+
+function getThreatClass(level) {
+  const key = getThreatLevelKey(level);
+
+  if (key === "critical") {
+    return "threat-critical";
+  }
+
+  if (key === "high") {
+    return "threat-high";
+  }
+
+  if (key === "medium") {
+    return "threat-medium";
+  }
+
+  if (key === "low") {
+    return "threat-low";
+  }
+
+  return "threat-none";
+}
+
+function getThreatLabel(level) {
+  const key = getThreatLevelKey(level);
+
+  if (key === "critical") {
+    return t("threatCritical");
+  }
+
+  if (key === "high") {
+    return t("threatHigh");
+  }
+
+  if (key === "medium") {
+    return t("threatMedium");
+  }
+
+  if (key === "low") {
+    return t("threatLow");
+  }
+
+  return t("threatNone");
+}
+
+function getThreatHeadline(level) {
+  const key = getThreatLevelKey(level);
+
+  if (key === "critical") {
+    return t("criticalThreatHeadline");
+  }
+
+  if (key === "high") {
+    return t("highThreatHeadline");
+  }
+
+  if (key === "medium" || key === "low") {
+    return t("suspiciousHeadline");
+  }
+
+  return t("noThreatHeadline");
+}
+
+function updateThreatPanel(latest) {
+  const threatLevel = latest?.threatLevel || "None";
+  const threatClass = getThreatClass(threatLevel);
+  const hasThreat = threatClass !== "threat-none";
+
+  elements.threatPanel.classList.remove(...THREAT_CLASS_NAMES);
+  elements.threatPanel.classList.add(threatClass);
+  elements.threatLevel.classList.remove(...THREAT_CLASS_NAMES);
+  elements.threatLevel.classList.add(threatClass);
+
+  elements.threatHeadline.textContent = getThreatHeadline(threatLevel);
+  elements.threatLevel.textContent = getThreatLabel(threatLevel);
+  elements.threatType.textContent = hasThreat ? latest?.threatType || t("unknown") : t("noThreatType");
+  elements.threatScore.textContent = hasThreat ? formatNumber(Number(latest?.threatScore)) : "0";
+  elements.threatDetectedAt.textContent = hasThreat && latest?.threatDetectedAt
+    ? formatTime(latest.threatDetectedAt)
+    : "--";
+
+  renderList(
+    elements.threatEvidenceList,
+    splitList(latest?.threatEvidence, t("noThreatEvidence")),
+  );
+  renderList(
+    elements.recommendedActionsList,
+    splitList(latest?.recommendedActions, t("noThreatAction")),
+  );
 }
 
 function updateStorageHygiene(latest) {
   elements.unnecessaryFileCount.textContent = formatNumber(Number(latest?.unnecessaryFileCount));
   elements.unnecessaryFileSizeMb.textContent = formatMb(Number(latest?.unnecessaryFileSizeMb));
   elements.unnecessaryFileLocations.textContent =
-    latest?.unnecessaryFileLocations || "No scan locations are available.";
+    latest?.unnecessaryFileLocations || t("noStorageLocations");
 
   const entries = String(latest?.largestUnnecessaryFiles || "")
     .split("|")
@@ -286,7 +587,7 @@ function updateStorageHygiene(latest) {
     .filter(Boolean);
 
   elements.largestUnnecessaryFiles.innerHTML = entries.length === 0
-    ? "<li>No unnecessary file samples detected yet.</li>"
+    ? `<li>${t("noUnnecessaryFiles")}</li>`
     : entries.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("");
 }
 
@@ -295,7 +596,7 @@ function updateRecordsTable(history) {
 
   if (recentRecords.length === 0) {
     elements.recordsTable.innerHTML =
-      '<tr><td colspan="8" class="empty-state">No system records found</td></tr>';
+      `<tr><td colspan="8" class="empty-state">${t("noRecords")}</td></tr>`;
     return;
   }
 
@@ -311,11 +612,11 @@ function updateRecordsTable(history) {
           <td>${formatPercent(Number(record.ramUsage))}</td>
           <td>${formatPercent(Number(record.diskUsage))}</td>
           <td>${formatNumber(Number(record.processCount))}</td>
+          <td class="threat-cell ${getThreatClass(record.threatLevel)}">${getThreatLabel(record.threatLevel)}</td>
           <td>${formatNumber(Number(record.listeningPortCount))}</td>
-          <td>${formatMb(Number(record.unnecessaryFileSizeMb))}</td>
           <td class="score-cell ${severity?.className || ""}">
             ${formatNumber(Number(record.securityScore))}
-            <span>${severity?.label || "Unknown"}</span>
+            <span>${severity ? localized(severity.label) : t("unknown")}</span>
           </td>
         </tr>
       `;
@@ -339,8 +640,8 @@ function createCharts() {
       datasets: [
         { label: "CPU", data: [], borderColor: "#3dd6d0", backgroundColor: "rgba(61, 214, 208, 0.12)", tension: 0.35 },
         { label: "RAM", data: [], borderColor: "#76a9ff", backgroundColor: "rgba(118, 169, 255, 0.12)", tension: 0.35 },
-        { label: "Disk", data: [], borderColor: "#f4c95d", backgroundColor: "rgba(244, 201, 93, 0.12)", tension: 0.35 },
-        { label: "Swap", data: [], borderColor: "#ff6b6b", backgroundColor: "rgba(255, 107, 107, 0.12)", tension: 0.35 },
+        { label: "Disk", data: [], borderColor: "#facc15", backgroundColor: "rgba(250, 204, 21, 0.12)", tension: 0.35 },
+        { label: "Swap", data: [], borderColor: "#ef4444", backgroundColor: "rgba(239, 68, 68, 0.12)", tension: 0.35 },
       ],
     },
     options: {
@@ -360,7 +661,7 @@ function createCharts() {
       labels: [],
       datasets: [
         {
-          label: "Security Score",
+          label: currentLanguage === "tr" ? "Güvenlik Skoru" : "Security Score",
           data: [],
           borderColor: "#78db85",
           backgroundColor: "rgba(120, 219, 133, 0.14)",
@@ -486,15 +787,16 @@ async function refreshDashboard() {
     updateScore(latest, liveHistory);
     updateMetrics(latest);
     updateExplanation(latest, liveHistory);
+    updateThreatPanel(latest);
     updateStorageHygiene(latest);
     updateRecordsTable(liveHistory);
     updateCharts(liveHistory);
 
-    elements.lastUpdated.textContent = `Updated ${formatTime(new Date())} | Records ${liveHistory.length}/${MAX_MONITORED_RECORDS}`;
-    setConnectionStatus(true, "Online");
+    elements.lastUpdated.textContent = `${t("updated")} ${formatTime(new Date())} | ${t("records")} ${liveHistory.length}/${MAX_MONITORED_RECORDS}`;
+    setConnectionStatus(true);
   } catch (error) {
-    setConnectionStatus(false, "Offline");
-    elements.lastUpdated.textContent = `Connection error: ${error.message}`;
+    setConnectionStatus(false);
+    elements.lastUpdated.textContent = `${t("connectionError")}: ${error.message}`;
   } finally {
     isRefreshing = false;
     scheduleRefresh();
@@ -506,5 +808,10 @@ function scheduleRefresh() {
   refreshTimerId = setTimeout(refreshDashboard, REFRESH_INTERVAL_MS);
 }
 
+elements.languageButtons.forEach((button) => {
+  button.addEventListener("click", () => applyLanguage(button.dataset.language));
+});
+
 createCharts();
+applyLanguage(DEFAULT_LANGUAGE);
 refreshDashboard();

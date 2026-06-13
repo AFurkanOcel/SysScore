@@ -9,19 +9,28 @@
   <body>
     <main class="dashboard-shell">
       <header class="topbar">
-        <div>
-          <p class="eyebrow">Pardus Security Monitoring</p>
-          <h1>SysScore Dashboard</h1>
+        <div class="brand-lockup">
+          <img src="/assets/icons/sysscore_icon.png" alt="" class="app-icon" />
+          <div>
+            <p class="eyebrow" data-i18n="eyebrow">Pardus Güvenlik İzleme</p>
+            <h1 data-i18n="appTitle">SysScore Güvenlik Paneli</h1>
+          </div>
         </div>
-        <div class="connection-status" id="connectionStatus">Connecting</div>
+        <div class="topbar-actions">
+          <div class="language-toggle" aria-label="Language">
+            <button type="button" class="active" data-language="tr">TR</button>
+            <button type="button" data-language="en">EN</button>
+          </div>
+          <div class="connection-status" id="connectionStatus">Bağlanıyor</div>
+        </div>
       </header>
 
       <section class="score-section" aria-label="Security score overview">
         <div class="score-panel" id="scorePanel">
           <div class="score-copy">
-            <p class="section-label">Security Score</p>
+            <p class="section-label" data-i18n="securityScore">Güvenlik Skoru</p>
             <div class="score-value" id="securityScore">--</div>
-            <p class="score-caption" id="scoreCaption">Waiting for system data</p>
+            <p class="score-caption" id="scoreCaption">Sistem verisi bekleniyor</p>
           </div>
           <div class="score-ring" id="scoreRing" aria-hidden="true">
             <span id="scoreRingValue">--</span>
@@ -29,69 +38,56 @@
         </div>
         <div class="ai-placeholder">
           <div class="ai-heading">
-            <p class="section-label">AI Explanation</p>
-            <span class="ai-severity" id="aiSeverity">Waiting</span>
+            <p class="section-label" data-i18n="aiExplanationTitle">Güvenlik Açıklaması</p>
+            <span class="ai-severity" id="aiSeverity">Bekleniyor</span>
           </div>
-          <p id="aiExplanation">Waiting for backend explanation.</p>
+          <p id="aiExplanation">Backend açıklaması bekleniyor.</p>
         </div>
       </section>
 
-      <section class="metric-grid" aria-label="Latest system metrics">
-        <article class="metric-card">
-          <span>CPU Usage</span>
-          <strong id="cpuUsage">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>RAM Usage</span>
-          <strong id="ramUsage">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Disk Usage</span>
-          <strong id="diskUsage">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Processes</span>
-          <strong id="processCount">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Swap Usage</span>
-          <strong id="swapUsage">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Disk Free</span>
-          <strong id="diskFreeGb">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Listening Ports</span>
-          <strong id="listeningPortCount">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Connections</span>
-          <strong id="networkConnectionCount">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>High CPU Processes</span>
-          <strong id="highCpuProcessCount">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>High Memory Processes</span>
-          <strong id="highMemoryProcessCount">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>System Uptime</span>
-          <strong id="systemUptime">--</strong>
-        </article>
-        <article class="metric-card">
-          <span>Boot Time</span>
-          <strong id="bootTime">--</strong>
-        </article>
+      <section class="threat-section" id="threatPanel" aria-label="Active threat status">
+        <div class="card-header">
+          <div>
+            <p class="section-label" data-i18n="threatStatusTitle">Aktif Tehdit Durumu</p>
+            <h2 id="threatHeadline">Tehdit Yok</h2>
+          </div>
+          <span class="threat-badge" id="threatLevel">Yok</span>
+        </div>
+        <div class="threat-grid">
+          <article>
+            <span data-i18n="threatType">Tehdit Tipi</span>
+            <strong id="threatType">--</strong>
+          </article>
+          <article>
+            <span data-i18n="threatScore">Tehdit Skoru</span>
+            <strong id="threatScore">--</strong>
+          </article>
+          <article>
+            <span data-i18n="threatDetectedAt">Son Tespit</span>
+            <strong id="threatDetectedAt">--</strong>
+          </article>
+        </div>
+        <div class="threat-details">
+          <div>
+            <h3 data-i18n="threatEvidence">Kanıtlar</h3>
+            <ul id="threatEvidenceList">
+              <li>Aktif ağ tabanlı saldırı davranışı tespit edilmedi.</li>
+            </ul>
+          </div>
+          <div>
+            <h3 data-i18n="recommendedActions">Önerilen Müdahale</h3>
+            <ul id="recommendedActionsList">
+              <li>Normal izlemeye devam edin.</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <section class="chart-grid" aria-label="System history charts">
         <article class="chart-card">
           <div class="card-header">
-            <h2>Resource Usage</h2>
-            <span>CPU / RAM / Disk</span>
+            <h2 data-i18n="resourceUsage">Kaynak Kullanımı</h2>
+            <span data-i18n="resourceUsageSubtitle">CPU / RAM / Disk</span>
           </div>
           <div class="chart-frame">
             <canvas id="resourceChart"></canvas>
@@ -99,8 +95,8 @@
         </article>
         <article class="chart-card">
           <div class="card-header">
-            <h2>Security Trend</h2>
-            <span>Score history</span>
+            <h2 data-i18n="securityTrend">Güvenlik Trendi</h2>
+            <span data-i18n="scoreHistory">Skor geçmişi</span>
           </div>
           <div class="chart-frame">
             <canvas id="scoreChart"></canvas>
@@ -110,50 +106,107 @@
 
       <section class="records-section" aria-label="Recent system records">
         <div class="card-header">
-          <h2>Recent Records</h2>
-          <span id="lastUpdated">Not updated yet</span>
+          <h2 data-i18n="recentRecords">Son Kayıtlar</h2>
+          <span id="lastUpdated">Henüz güncellenmedi</span>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Time</th>
+                <th data-i18n="tableTime">Zaman</th>
                 <th>CPU</th>
                 <th>RAM</th>
                 <th>Disk</th>
-                <th>Processes</th>
-                <th>Ports</th>
-                <th>Junk</th>
-                <th>Score</th>
+                <th data-i18n="tableProcesses">Process</th>
+                <th data-i18n="tableThreat">Tehdit</th>
+                <th data-i18n="tablePorts">Port</th>
+                <th data-i18n="tableScore">Skor</th>
               </tr>
             </thead>
             <tbody id="recordsTable">
               <tr>
-                <td colspan="8" class="empty-state">Waiting for backend data</td>
+                <td colspan="8" class="empty-state">Backend verisi bekleniyor</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
+      <details class="system-details">
+        <summary>
+          <span data-i18n="systemDetails">Sistem Ayrıntıları</span>
+          <small data-i18n="systemDetailsHint">CPU, RAM, disk, process ve ağ metrikleri</small>
+        </summary>
+        <section class="metric-grid" aria-label="Latest system metrics">
+          <article class="metric-card">
+            <span data-i18n="cpuUsage">CPU Kullanımı</span>
+            <strong id="cpuUsage">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="ramUsage">RAM Kullanımı</span>
+            <strong id="ramUsage">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="diskUsage">Disk Kullanımı</span>
+            <strong id="diskUsage">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="processes">Process</span>
+            <strong id="processCount">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="swapUsage">Swap Kullanımı</span>
+            <strong id="swapUsage">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="diskFree">Boş Disk</span>
+            <strong id="diskFreeGb">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="listeningPorts">Dinleyen Portlar</span>
+            <strong id="listeningPortCount">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="connections">Bağlantılar</span>
+            <strong id="networkConnectionCount">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="highCpuProcesses">Yüksek CPU Process</span>
+            <strong id="highCpuProcessCount">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="highMemoryProcesses">Yüksek Bellek Process</span>
+            <strong id="highMemoryProcessCount">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="systemUptime">Sistem Çalışma Süresi</span>
+            <strong id="systemUptime">--</strong>
+          </article>
+          <article class="metric-card">
+            <span data-i18n="bootTime">Açılış Zamanı</span>
+            <strong id="bootTime">--</strong>
+          </article>
+        </section>
+      </details>
+
       <section class="storage-section" aria-label="Storage hygiene overview">
         <div class="card-header">
-          <h2>Storage Hygiene</h2>
-          <span>Temporary, cache and trash file monitoring</span>
+          <h2 data-i18n="storageHygiene">Depolama Hijyeni</h2>
+          <span data-i18n="storageSubtitle">Geçici, cache ve çöp dosyası izleme</span>
         </div>
         <div class="storage-grid">
           <article class="storage-stat">
-            <span>Unnecessary Files</span>
+            <span data-i18n="unnecessaryFiles">Gereksiz Dosyalar</span>
             <strong id="unnecessaryFileCount">--</strong>
           </article>
           <article class="storage-stat">
-            <span>Total Size</span>
+            <span data-i18n="totalSize">Toplam Boyut</span>
             <strong id="unnecessaryFileSizeMb">--</strong>
           </article>
         </div>
-        <p class="storage-locations" id="unnecessaryFileLocations">Scanned locations will appear here.</p>
+        <p class="storage-locations" id="unnecessaryFileLocations">Taranan konumlar burada görünecek.</p>
         <ul class="storage-list" id="largestUnnecessaryFiles">
-          <li>No unnecessary file samples detected yet.</li>
+          <li>Henüz gereksiz dosya örneği tespit edilmedi.</li>
         </ul>
       </section>
     </main>

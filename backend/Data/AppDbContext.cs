@@ -29,6 +29,14 @@ namespace SysScore.Data
                 entity.Property(data => data.HighMemoryProcessCount).IsRequired();
                 entity.Property(data => data.NetworkConnectionCount).IsRequired();
                 entity.Property(data => data.ListeningPortCount).IsRequired();
+                entity.Property(data => data.EstablishedConnectionCount).IsRequired();
+                entity.Property(data => data.SynSentConnectionCount).IsRequired();
+                entity.Property(data => data.TimeWaitConnectionCount).IsRequired();
+                entity.Property(data => data.UniqueRemoteAddressCount).IsRequired();
+                entity.Property(data => data.UniqueRemotePortCount).IsRequired();
+                entity.Property(data => data.NetworkConnectionDelta).IsRequired();
+                entity.Property(data => data.OutboundPacketRate).IsRequired();
+                entity.Property(data => data.InboundPacketRate).IsRequired();
                 entity.Property(data => data.SystemUptimeSeconds).IsRequired();
                 entity.Property(data => data.BootTime).IsRequired();
                 entity.Property(data => data.UnnecessaryFileCount).IsRequired();
@@ -38,6 +46,10 @@ namespace SysScore.Data
                 entity.Property(data => data.Timestamp).IsRequired();
                 entity.Property(data => data.SecurityScore).IsRequired();
                 entity.Property(data => data.Explanation).HasMaxLength(1000);
+                entity.Property(data => data.ThreatType).HasMaxLength(120);
+                entity.Property(data => data.ThreatLevel).HasMaxLength(30);
+                entity.Property(data => data.ThreatEvidence).HasMaxLength(1500);
+                entity.Property(data => data.RecommendedActions).HasMaxLength(1500);
             });
         }
     }

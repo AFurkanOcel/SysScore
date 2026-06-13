@@ -13,12 +13,18 @@ namespace SysScore.Controllers
         private readonly AppDbContext dbContext;
         private readonly ScoreService scoreService;
         private readonly AIService aiService;
+        private readonly ThreatDetectionService threatDetectionService;
 
-        public SystemController(AppDbContext dbContext, ScoreService scoreService, AIService aiService)
+        public SystemController(
+            AppDbContext dbContext,
+            ScoreService scoreService,
+            AIService aiService,
+            ThreatDetectionService threatDetectionService)
         {
             this.dbContext = dbContext;
             this.scoreService = scoreService;
             this.aiService = aiService;
+            this.threatDetectionService = threatDetectionService;
         }
 
         [HttpPost]
@@ -30,6 +36,7 @@ namespace SysScore.Controllers
             SystemData? previousData = await dbContext.SystemDataRecords
                 .OrderByDescending(data => data.Timestamp)
                 .FirstOrDefaultAsync();
+            threatDetectionService.Analyze(systemData, previousData);
             systemData.SecurityScore = scoreService.CalculateScore(systemData, previousData);
             systemData.Explanation = await aiService.GenerateExplanationAsync(systemData, previousData);
 

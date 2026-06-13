@@ -4,6 +4,7 @@ const path = require("path");
 
 const port = Number(process.env.PORT || 5173);
 const rootDirectory = __dirname;
+const assetsDirectory = path.join(__dirname, "..", "assets");
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -11,11 +12,19 @@ const mimeTypes = {
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".map": "application/json; charset=utf-8",
+  ".png": "image/png",
 };
 
 function resolveFilePath(requestUrl) {
   const parsedUrl = new URL(requestUrl, `http://localhost:${port}`);
   const pathname = decodeURIComponent(parsedUrl.pathname);
+
+  if (pathname.startsWith("/assets/")) {
+    const assetPath = path.normalize(path.join(assetsDirectory, pathname.replace("/assets/", "")));
+
+    return assetPath.startsWith(assetsDirectory) ? assetPath : null;
+  }
+
   const requestedPath = pathname === "/" ? "/index.html" : pathname;
   const filePath = path.normalize(path.join(rootDirectory, requestedPath));
 

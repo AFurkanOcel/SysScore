@@ -13,7 +13,8 @@ namespace SysScore.Services
                 CalculateStorageHygienePenalty(data) +
                 CalculateTrendPenalty(data, previousData) +
                 CalculateCompoundRiskPenalty(data) +
-                CalculatePersistentRiskPenalty(data, previousData);
+                CalculatePersistentRiskPenalty(data, previousData) +
+                CalculateThreatPenalty(data);
 
             penalty = Math.Max(0, penalty - CalculateStabilityBonus(data, previousData));
 
@@ -162,7 +163,8 @@ namespace SysScore.Services
                 data.HighMemoryProcessCount == 0 &&
                 data.ListeningPortCount <= 8 &&
                 data.NetworkConnectionCount < 80 &&
-                data.UnnecessaryFileSizeMb < 512;
+                data.UnnecessaryFileSizeMb < 512 &&
+                data.ThreatScore < 15;
 
             if (!metricsAreStable)
             {
@@ -181,6 +183,18 @@ namespace SysScore.Services
                 data.UnnecessaryFileSizeMb - previousData.UnnecessaryFileSizeMb < 128;
 
             return noMeaningfulRegression ? 5 : 2;
+        }
+
+        private static double CalculateThreatPenalty(SystemData data)
+        {
+            return data.ThreatLevel switch
+            {
+                "Critical" => 25,
+                "High" => 18,
+                "Medium" => 10,
+                "Low" => 4,
+                _ => ThresholdPenalty(data.ThreatScore, 15, 80, 20)
+            };
         }
 
         private static double ThresholdPenalty(double value, double warningThreshold, double criticalThreshold, double maxPenalty)

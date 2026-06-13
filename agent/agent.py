@@ -15,6 +15,8 @@ HIGH_PROCESS_MEMORY_THRESHOLD = 10.0
 MAX_SCANNED_FILES_PER_LOCATION = 5000
 MAX_REPORTED_UNNECESSARY_FILES = 40
 
+previous_network_snapshot: dict[str, float | int] | None = None
+
 
 def log(message: str) -> None:
     print(message, flush=True)
@@ -101,12 +103,22 @@ def collect_process_metrics() -> dict[str, int]:
 
 
 def collect_network_metrics() -> dict[str, int]:
+    global previous_network_snapshot
+
     try:
         connections = psutil.net_connections(kind="inet")
     except (psutil.AccessDenied, OSError):
         return {
             "networkConnectionCount": 0,
             "listeningPortCount": 0,
+            "establishedConnectionCount": 0,
+            "synSentConnectionCount": 0,
+            "timeWaitConnectionCount": 0,
+            "uniqueRemoteAddressCount": 0,
+            "uniqueRemotePortCount": 0,
+            "networkConnectionDelta": 0,
+            "outboundPacketRate": 0,
+            "inboundPacketRate": 0,
         }
 
     listening_ports = {
@@ -114,10 +126,56 @@ def collect_network_metrics() -> dict[str, int]:
         for connection in connections
         if connection.status == psutil.CONN_LISTEN and connection.laddr
     }
+    remote_addresses = {
+        connection.raddr.ip
+        for connection in connections
+        if connection.raddr
+    }
+    remote_ports = {
+        connection.raddr.port
+        for connection in connections
+        if connection.raddr
+    }
+    established_count = sum(1 for connection in connections if connection.status == psutil.CONN_ESTABLISHED)
+    syn_sent_count = sum(1 for connection in connections if connection.status == psutil.CONN_SYN_SENT)
+    time_wait_count = sum(1 for connection in connections if connection.status == psutil.CONN_TIME_WAIT)
+    net_io = psutil.net_io_counters()
+    now = time.monotonic()
+
+    current_snapshot = {
+        "timestamp": now,
+        "connectionCount": len(connections),
+        "packetsSent": net_io.packets_sent,
+        "packetsRecv": net_io.packets_recv,
+    }
+
+    network_connection_delta = 0
+    outbound_packet_rate = 0.0
+    inbound_packet_rate = 0.0
+
+    if previous_network_snapshot is not None:
+        elapsed_seconds = max(1.0, now - float(previous_network_snapshot["timestamp"]))
+        network_connection_delta = len(connections) - int(previous_network_snapshot["connectionCount"])
+        outbound_packet_rate = (
+            net_io.packets_sent - int(previous_network_snapshot["packetsSent"])
+        ) / elapsed_seconds
+        inbound_packet_rate = (
+            net_io.packets_recv - int(previous_network_snapshot["packetsRecv"])
+        ) / elapsed_seconds
+
+    previous_network_snapshot = current_snapshot
 
     return {
         "networkConnectionCount": len(connections),
         "listeningPortCount": len(listening_ports),
+        "establishedConnectionCount": established_count,
+        "synSentConnectionCount": syn_sent_count,
+        "timeWaitConnectionCount": time_wait_count,
+        "uniqueRemoteAddressCount": len(remote_addresses),
+        "uniqueRemotePortCount": len(remote_ports),
+        "networkConnectionDelta": network_connection_delta,
+        "outboundPacketRate": round(max(0.0, outbound_packet_rate), 2),
+        "inboundPacketRate": round(max(0.0, inbound_packet_rate), 2),
     }
 
 

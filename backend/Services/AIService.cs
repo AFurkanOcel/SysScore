@@ -64,95 +64,111 @@ namespace SysScore.Services
             if (previousData is not null &&
                 previousData.SecurityScore - currentData.SecurityScore >= ScoreDropThreshold)
             {
-                findings.Add("Security score decreased compared with the previous record, mainly due to increased resource pressure.");
+                findings.Add("Güvenlik skoru önceki kayda göre düştü; sistemde artan risk göstergeleri incelenmelidir.");
+            }
+
+            if (!string.Equals(currentData.ThreatLevel, "None", StringComparison.OrdinalIgnoreCase) &&
+                currentData.ThreatScore > 0)
+            {
+                findings.Add($"{currentData.ThreatType} tespit edildi. Tehdit seviyesi: {TranslateThreatLevel(currentData.ThreatLevel)}, tehdit skoru: {currentData.ThreatScore}.");
+
+                if (!string.IsNullOrWhiteSpace(currentData.ThreatEvidence))
+                {
+                    findings.Add($"Kanıtlar: {currentData.ThreatEvidence.Replace(" | ", " ")}");
+                }
+
+                if (!string.IsNullOrWhiteSpace(currentData.RecommendedActions))
+                {
+                    findings.Add($"Önerilen müdahale: {currentData.RecommendedActions.Replace(" | ", " ")}");
+                }
             }
 
             if (currentData.RamUsage >= HighRamThreshold && currentData.SwapUsage >= HighSwapThreshold)
             {
-                findings.Add("Combined RAM and swap pressure suggests sustained memory stress rather than a short resource spike.");
+                findings.Add("RAM ve swap kullanımının birlikte yükselmesi geçici bir yükten çok kalıcı bellek baskısına işaret edebilir.");
             }
 
             if (currentData.ListeningPortCount >= HighListeningPortThreshold &&
                 currentData.NetworkConnectionCount >= HighConnectionThreshold)
             {
-                findings.Add("Network exposure is elevated because listening ports and active connections are both above the expected baseline.");
+                findings.Add("Dinleyen port ve aktif bağlantı sayıları birlikte yüksek olduğu için ağ yüzeyi gözden geçirilmelidir.");
             }
 
             if (currentData.HighCpuProcessCount > 0 && currentData.HighMemoryProcessCount > 0)
             {
-                findings.Add("Process-level anomaly is present because high CPU and high memory consumers are active at the same time.");
+                findings.Add("Yüksek CPU ve yüksek bellek tüketen process'ler aynı anda görüldüğü için process davranışı incelenmelidir.");
             }
 
             if (previousData is not null &&
                 currentData.UnnecessaryFileSizeMb >= HighUnnecessaryFileSizeMbThreshold &&
                 previousData.UnnecessaryFileSizeMb >= HighUnnecessaryFileSizeMbThreshold)
             {
-                findings.Add("Storage hygiene risk appears persistent because temporary, cache, or trash file size remains high across records.");
+                findings.Add("Geçici, cache veya çöp dosyalarının boyutu ardışık kayıtlarda yüksek kaldığı için storage hygiene riski süreklilik gösteriyor.");
             }
 
             if (previousData is not null &&
                 currentData.ProcessCount >= HighProcessThreshold &&
                 previousData.ProcessCount >= HighProcessThreshold)
             {
-                findings.Add("Process count remains persistently high and should be reviewed for unnecessary background activity.");
+                findings.Add("Process sayısı ardışık kayıtlarda yüksek kaldığı için gereksiz arka plan süreçleri kontrol edilmelidir.");
             }
 
             if (currentData.CpuUsage >= HighCpuThreshold)
             {
-                findings.Add("CPU usage is elevated, which may indicate heavy workload or a process consuming unusual resources.");
+                findings.Add("CPU kullanımı yüksek; yoğun iş yükü veya olağandışı kaynak tüketen bir process olabilir.");
             }
 
             if (currentData.RamUsage >= HighRamThreshold)
             {
-                findings.Add("Memory usage is high and may reduce system stability if it continues.");
+                findings.Add("Bellek kullanımı yüksek ve devam ederse sistem kararlılığını azaltabilir.");
             }
 
             if (currentData.DiskUsage >= HighDiskThreshold)
             {
-                findings.Add("Disk usage is high; low free space can affect reliability and logging.");
+                findings.Add("Disk kullanımı yüksek; düşük boş alan loglama ve sistem güvenilirliğini etkileyebilir.");
             }
 
             if (currentData.SwapUsage >= HighSwapThreshold)
             {
-                findings.Add("Swap usage is elevated, which may indicate memory pressure beyond normal RAM usage.");
+                findings.Add("Swap kullanımı yüksek; bu durum RAM baskısının normal seviyeyi aştığını gösterebilir.");
             }
 
             if (currentData.ProcessCount >= HighProcessThreshold)
             {
-                findings.Add("Process count is above the expected baseline and should be reviewed.");
+                findings.Add("Process sayısı beklenen seviyenin üzerinde ve incelenmelidir.");
             }
 
             if (currentData.HighCpuProcessCount > 0 || currentData.HighMemoryProcessCount > 0)
             {
-                findings.Add("One or more processes are consuming unusually high CPU or memory resources.");
+                findings.Add("Bir veya daha fazla process olağandışı CPU ya da bellek kullanıyor.");
             }
 
             if (currentData.ListeningPortCount >= HighListeningPortThreshold)
             {
-                findings.Add("The number of listening ports is higher than expected and exposed services should be reviewed.");
+                findings.Add("Dinleyen port sayısı beklenenden yüksek; dışa açık servisler kontrol edilmelidir.");
             }
 
             if (currentData.NetworkConnectionCount >= HighConnectionThreshold)
             {
-                findings.Add("Network connection count is elevated, which may indicate heavy service activity.");
+                findings.Add("Ağ bağlantı sayısı yüksek; yoğun servis aktivitesi veya şüpheli bağlantı davranışı olabilir.");
             }
 
             if (currentData.UnnecessaryFileSizeMb >= HighUnnecessaryFileSizeMbThreshold ||
                 currentData.UnnecessaryFileCount >= 1000)
             {
-                findings.Add("Temporary, cache, or trash files are accumulating and should be reviewed for storage hygiene.");
+                findings.Add("Geçici, cache veya çöp dosyaları birikiyor; storage hygiene açısından gözden geçirilmelidir.");
             }
 
             if (previousData is not null &&
                 currentData.ListeningPortCount - previousData.ListeningPortCount >= 5)
             {
-                findings.Add("Listening ports increased compared with the previous record.");
+                findings.Add("Dinleyen port sayısı önceki kayda göre arttı.");
             }
 
             if (previousData is not null &&
                 currentData.UnnecessaryFileSizeMb - previousData.UnnecessaryFileSizeMb >= 512)
             {
-                findings.Add("Unnecessary file size increased noticeably compared with the previous record.");
+                findings.Add("Gereksiz dosya boyutu önceki kayda göre belirgin şekilde arttı.");
             }
 
             return LimitExplanationLength(string.Join(" ", findings));
@@ -162,25 +178,25 @@ namespace SysScore.Services
         {
             if (securityScore >= 90)
             {
-                return "Excellent posture: system indicators are healthy and no immediate risk pattern is detected.";
+                return "Mükemmel durum: sistem göstergeleri sağlıklı ve acil bir risk paterni tespit edilmedi.";
             }
 
             if (securityScore >= 75)
             {
-                return "System appears stable: monitored indicators remain within acceptable ranges.";
+                return "Sistem stabil görünüyor: izlenen göstergeler kabul edilebilir aralıkta.";
             }
 
             if (securityScore >= 60)
             {
-                return "Moderate risk detected: review the highlighted indicators before they become persistent.";
+                return "Orta seviye risk tespit edildi: kalıcı hale gelmeden ilgili göstergeler incelenmelidir.";
             }
 
             if (securityScore >= 40)
             {
-                return "High risk indicators are present: prioritize investigation of the affected areas.";
+                return "Yüksek risk göstergeleri mevcut: etkilenen alanlar öncelikli olarak incelenmelidir.";
             }
 
-            return "Critical system pressure detected: immediate review is recommended.";
+            return "Kritik sistem riski tespit edildi: acil inceleme önerilir.";
         }
 
         private async Task<string?> GenerateOllamaExplanationAsync(
@@ -222,8 +238,8 @@ namespace SysScore.Services
                 : previousData.SecurityScore.ToString();
 
             return $"""
-                You are explaining a Linux security monitoring score to an administrator.
-                Keep the answer under 70 words, professional, clear, and action-oriented.
+                You are explaining a Pardus/Linux security monitoring score to a Turkish administrator.
+                Answer in Turkish. Keep the answer under 70 words, professional, clear, and action-oriented.
                 Current metrics:
                 CPU: {currentData.CpuUsage:F1}%
                 RAM: {currentData.RamUsage:F1}%
@@ -234,6 +250,10 @@ namespace SysScore.Services
                 High memory processes: {currentData.HighMemoryProcessCount}
                 Listening ports: {currentData.ListeningPortCount}
                 Network connections: {currentData.NetworkConnectionCount}
+                Threat type: {currentData.ThreatType ?? "None"}
+                Threat level: {currentData.ThreatLevel ?? "None"}
+                Threat score: {currentData.ThreatScore}
+                Threat evidence: {currentData.ThreatEvidence ?? "None"}
                 Unnecessary file count: {currentData.UnnecessaryFileCount}
                 Unnecessary file size MB: {currentData.UnnecessaryFileSizeMb:F1}
                 Security score: {currentData.SecurityScore}
@@ -257,6 +277,18 @@ namespace SysScore.Services
             }
 
             return explanation[..(MaxExplanationLength - 3)].TrimEnd() + "...";
+        }
+
+        private static string TranslateThreatLevel(string? threatLevel)
+        {
+            return threatLevel switch
+            {
+                "Critical" => "Kritik",
+                "High" => "Yüksek",
+                "Medium" => "Orta",
+                "Low" => "Düşük",
+                _ => "Yok"
+            };
         }
 
         private sealed record OllamaRequest(

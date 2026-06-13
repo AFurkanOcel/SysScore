@@ -24,6 +24,22 @@ namespace SysScore.Models
 
         public int ListeningPortCount { get; set; }
 
+        public int EstablishedConnectionCount { get; set; }
+
+        public int SynSentConnectionCount { get; set; }
+
+        public int TimeWaitConnectionCount { get; set; }
+
+        public int UniqueRemoteAddressCount { get; set; }
+
+        public int UniqueRemotePortCount { get; set; }
+
+        public int NetworkConnectionDelta { get; set; }
+
+        public double OutboundPacketRate { get; set; }
+
+        public double InboundPacketRate { get; set; }
+
         public long SystemUptimeSeconds { get; set; }
 
         public DateTime BootTime { get; set; }
@@ -41,5 +57,17 @@ namespace SysScore.Models
         public int SecurityScore { get; set; }
 
         public string? Explanation { get; set; }
+
+        public string? ThreatType { get; set; }
+
+        public string? ThreatLevel { get; set; }
+
+        public int ThreatScore { get; set; }
+
+        public string? ThreatEvidence { get; set; }
+
+        public string? RecommendedActions { get; set; }
+
+        public DateTime? ThreatDetectedAt { get; set; }
     }
 }
