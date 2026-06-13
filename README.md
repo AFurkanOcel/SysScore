@@ -1,6 +1,9 @@
 <h1 align="center">SysScore</h1>
 
 <p align="center">
+  <img width="92" alt="MyTripStoria icon" src="assets/icons/sysscore_icon.png" />
+</p>
+<p align="center">
 AI-supported threat detection, security scoring and monitoring platform for Pardus/Linux systems.
 </p>
 
