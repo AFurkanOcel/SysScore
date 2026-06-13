@@ -183,6 +183,57 @@ const TRANSLATIONS = {
   },
 };
 
+const DYNAMIC_TEXT_TRANSLATIONS = [
+  ["Mükemmel durum: sistem göstergeleri sağlıklı ve acil bir risk paterni tespit edilmedi.", "Excellent posture: system indicators are healthy and no immediate risk pattern was detected."],
+  ["Sistem stabil görünüyor: izlenen göstergeler kabul edilebilir aralıkta.", "System appears stable: monitored indicators remain within acceptable ranges."],
+  ["Orta seviye risk tespit edildi: kalıcı hale gelmeden ilgili göstergeler incelenmelidir.", "Moderate risk detected: the highlighted indicators should be reviewed before they become persistent."],
+  ["Yüksek risk göstergeleri mevcut: etkilenen alanlar öncelikli olarak incelenmelidir.", "High risk indicators are present: affected areas should be reviewed first."],
+  ["Kritik sistem riski tespit edildi: acil inceleme önerilir.", "Critical system risk detected: immediate review is recommended."],
+  ["Güvenlik skoru önceki kayda göre düştü; sistemde artan risk göstergeleri incelenmelidir.", "The security score decreased compared with the previous record; increasing risk indicators should be reviewed."],
+  ["Port Scan / Worm-like Network Activity tespit edildi.", "Port Scan / Worm-like Network Activity detected."],
+  ["Aktif ağ tabanlı saldırı davranışı tespit edilmedi.", "No active network-based attack behavior detected."],
+  ["Normal izlemeye devam edin.", "Continue normal monitoring."],
+  ["ss -tulpen ile aktif servisleri ve bağlantıları inceleyin.", "Review active services and connections with ss -tulpen."],
+  ["Gereksiz açık portları kapatın veya firewall ile sınırlandırın.", "Close unnecessary open ports or restrict them with a firewall."],
+  ["Şüpheli uzak adresleri doğrulayıp gerekiyorsa ağ seviyesinde engelleyin.", "Validate suspicious remote addresses and block them at the network level if needed."],
+  ["Firewall durumunu kontrol edin: sudo ufw status", "Check firewall status: sudo ufw status"],
+  ["RAM ve swap kullanımının birlikte yükselmesi geçici bir yükten çok kalıcı bellek baskısına işaret edebilir.", "Combined RAM and swap pressure may indicate sustained memory stress rather than a temporary load spike."],
+  ["Dinleyen port ve aktif bağlantı sayıları birlikte yüksek olduğu için ağ yüzeyi gözden geçirilmelidir.", "Listening ports and active connections are both high, so the network exposure surface should be reviewed."],
+  ["Yüksek CPU ve yüksek bellek tüketen process'ler aynı anda görüldüğü için process davranışı incelenmelidir.", "High CPU and high memory processes are active at the same time, so process behavior should be reviewed."],
+  ["Geçici, cache veya çöp dosyalarının boyutu ardışık kayıtlarda yüksek kaldığı için storage hygiene riski süreklilik gösteriyor.", "Temporary, cache, or trash file size remains high across records, indicating persistent storage hygiene risk."],
+  ["Process sayısı ardışık kayıtlarda yüksek kaldığı için gereksiz arka plan süreçleri kontrol edilmelidir.", "Process count remains high across records, so unnecessary background processes should be reviewed."],
+  ["CPU kullanımı yüksek; yoğun iş yükü veya olağandışı kaynak tüketen bir process olabilir.", "CPU usage is high; this may indicate heavy workload or an unusually resource-intensive process."],
+  ["Bellek kullanımı yüksek ve devam ederse sistem kararlılığını azaltabilir.", "Memory usage is high and may reduce system stability if it continues."],
+  ["Disk kullanımı yüksek; düşük boş alan loglama ve sistem güvenilirliğini etkileyebilir.", "Disk usage is high; low free space may affect logging and system reliability."],
+  ["Swap kullanımı yüksek; bu durum RAM baskısının normal seviyeyi aştığını gösterebilir.", "Swap usage is high; this may indicate memory pressure beyond normal RAM usage."],
+  ["Process sayısı beklenen seviyenin üzerinde ve incelenmelidir.", "Process count is above the expected baseline and should be reviewed."],
+  ["Bir veya daha fazla process olağandışı CPU ya da bellek kullanıyor.", "One or more processes are using unusual CPU or memory resources."],
+  ["Dinleyen port sayısı beklenenden yüksek; dışa açık servisler kontrol edilmelidir.", "The number of listening ports is higher than expected; exposed services should be reviewed."],
+  ["Ağ bağlantı sayısı yüksek; yoğun servis aktivitesi veya şüpheli bağlantı davranışı olabilir.", "Network connection count is high; this may indicate heavy service activity or suspicious connection behavior."],
+  ["Geçici, cache veya çöp dosyaları birikiyor; storage hygiene açısından gözden geçirilmelidir.", "Temporary, cache, or trash files are accumulating and should be reviewed for storage hygiene."],
+  ["Dinleyen port sayısı önceki kayda göre arttı.", "Listening port count increased compared with the previous record."],
+  ["Gereksiz dosya boyutu önceki kayda göre belirgin şekilde arttı.", "Unnecessary file size increased noticeably compared with the previous record."],
+  ["Benzer ağ tabanlı risk önceki kayıtta da devam ediyordu.", "A similar network-based risk was also present in the previous record."],
+];
+
+const DYNAMIC_REGEX_TRANSLATIONS = [
+  [/Tehdit seviyesi: Kritik, tehdit skoru: (\d+)\./g, "Threat level: Critical, threat score: $1."],
+  [/Tehdit seviyesi: Yüksek, tehdit skoru: (\d+)\./g, "Threat level: High, threat score: $1."],
+  [/Tehdit seviyesi: Orta, tehdit skoru: (\d+)\./g, "Threat level: Medium, threat score: $1."],
+  [/Tehdit seviyesi: Düşük, tehdit skoru: (\d+)\./g, "Threat level: Low, threat score: $1."],
+  [/Kanıtlar: /g, "Evidence: "],
+  [/Önerilen müdahale: /g, "Recommended response: "],
+  [/Ağ bağlantı sayısı kısa sürede (-?\d+) arttı\./g, "Network connection count increased by $1 in a short period."],
+  [/Ağ bağlantı sayısında olağandışı artış görüldü: \+(-?\d+)\./g, "Unusual network connection growth was observed: +$1."],
+  [/SYN_SENT durumunda (\d+) bağlantı gözlendi\./g, "$1 SYN_SENT connections were observed."],
+  [/Kısa ömürlü bağlantıları gösteren TIME_WAIT sayısı yüksek: (\d+)\./g, "TIME_WAIT count is high, indicating many short-lived connections: $1."],
+  [/Kısa aralıkta (\d+) farklı uzak porta bağlantı davranışı tespit edildi\./g, "Connections to $1 different remote ports were detected in a short interval."],
+  [/Farklı uzak port sayısı normal seviyenin üzerinde: (\d+)\./g, "Unique remote port count is above the normal level: $1."],
+  [/Birden fazla uzak adrese bağlantı davranışı var: (\d+) hedef\./g, "Connections to multiple remote addresses were observed: $1 targets."],
+  [/Toplam ağ bağlantı sayısı yüksek: (\d+)\./g, "Total network connection count is high: $1."],
+  [/Dinleyen port sayısı genişledi: (\d+) port\./g, "Listening port exposure increased: $1 ports."],
+];
+
 const elements = {
   connectionStatus: document.getElementById("connectionStatus"),
   scorePanel: document.getElementById("scorePanel"),
@@ -266,7 +317,41 @@ function splitList(value, fallback) {
 }
 
 function renderList(element, items) {
-  element.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  element.innerHTML = items.map((item) => `<li>${escapeHtml(translateDynamicText(item))}</li>`).join("");
+}
+
+function translateDynamicText(value) {
+  let text = String(value || "");
+
+  if (currentLanguage !== "en") {
+    return text;
+  }
+
+  for (const [source, target] of DYNAMIC_TEXT_TRANSLATIONS) {
+    text = text.replaceAll(source, target);
+  }
+
+  for (const [pattern, target] of DYNAMIC_REGEX_TRANSLATIONS) {
+    text = text.replace(pattern, target);
+  }
+
+  return text;
+}
+
+function translateThreatType(value) {
+  if (!value) {
+    return value;
+  }
+
+  if (currentLanguage === "en") {
+    return value;
+  }
+
+  if (value === "Port Scan / Worm-like Network Activity") {
+    return "Port Tarama / Solucan Benzeri Ağ Aktivitesi";
+  }
+
+  return value;
 }
 
 function formatDuration(seconds) {
@@ -478,7 +563,7 @@ function updateExplanation(latest, history = monitoredRecords) {
   applyRiskClass(elements.aiSeverity, severity);
   elements.aiSeverity.textContent = severity ? localized(severity.label) : t("waitingForData");
   elements.aiExplanation.textContent =
-    latest?.explanation?.trim() || t("noExplanation");
+    latest?.explanation?.trim() ? translateDynamicText(latest.explanation.trim()) : t("noExplanation");
 }
 
 function getThreatLevelKey(level) {
@@ -559,7 +644,7 @@ function updateThreatPanel(latest) {
 
   elements.threatHeadline.textContent = getThreatHeadline(threatLevel);
   elements.threatLevel.textContent = getThreatLabel(threatLevel);
-  elements.threatType.textContent = hasThreat ? latest?.threatType || t("unknown") : t("noThreatType");
+  elements.threatType.textContent = hasThreat ? translateThreatType(latest?.threatType) || t("unknown") : t("noThreatType");
   elements.threatScore.textContent = hasThreat ? formatNumber(Number(latest?.threatScore)) : "0";
   elements.threatDetectedAt.textContent = hasThreat && latest?.threatDetectedAt
     ? formatTime(latest.threatDetectedAt)
