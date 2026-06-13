@@ -438,9 +438,11 @@ Optional configuration:
 
 ```bash
 export SYSSCORE_API_URL=http://localhost:5070/api/system-data
-export SYSSCORE_POLL_INTERVAL_SECONDS=5
+export SYSSCORE_POLL_INTERVAL_SECONDS=60
 agent/venv/bin/python agent/agent.py
 ```
+
+The default polling interval is 60 seconds to reduce unnecessary system load. For controlled demos, it can be temporarily lowered if faster dashboard feedback is needed.
 
 ### 6. Run Frontend Dashboard
 

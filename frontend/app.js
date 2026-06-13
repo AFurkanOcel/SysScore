@@ -1,5 +1,5 @@
 const API_BASE_URL = window.SYSSCORE_API_BASE_URL || "http://localhost:5070";
-const REFRESH_INTERVAL_MS = 5000;
+const REFRESH_INTERVAL_MS = 60000;
 const HISTORY_LIMIT = 20;
 const MAX_MONITORED_RECORDS = 100;
 const DEFAULT_LANGUAGE = "tr";
