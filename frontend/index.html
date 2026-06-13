@@ -85,55 +85,6 @@
         </div>
       </section>
 
-      <section class="chart-grid" aria-label="System history charts">
-        <article class="chart-card">
-          <div class="card-header">
-            <h2 data-i18n="resourceUsage">Kaynak Kullanımı</h2>
-            <span data-i18n="resourceUsageSubtitle">CPU / RAM / Disk</span>
-          </div>
-          <div class="chart-frame">
-            <canvas id="resourceChart"></canvas>
-          </div>
-        </article>
-        <article class="chart-card">
-          <div class="card-header">
-            <h2 data-i18n="securityTrend">Güvenlik Trendi</h2>
-            <span data-i18n="scoreHistory">Skor geçmişi</span>
-          </div>
-          <div class="chart-frame">
-            <canvas id="scoreChart"></canvas>
-          </div>
-        </article>
-      </section>
-
-      <section class="records-section" aria-label="Recent system records">
-        <div class="card-header">
-          <h2 data-i18n="recentRecords">Son Kayıtlar</h2>
-          <span id="lastUpdated">Henüz güncellenmedi</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th data-i18n="tableTime">Zaman</th>
-                <th>CPU</th>
-                <th>RAM</th>
-                <th>Disk</th>
-                <th data-i18n="tableProcesses">Process</th>
-                <th data-i18n="tableThreat">Tehdit</th>
-                <th data-i18n="tablePorts">Port</th>
-                <th data-i18n="tableScore">Skor</th>
-              </tr>
-            </thead>
-            <tbody id="recordsTable">
-              <tr>
-                <td colspan="8" class="empty-state">Backend verisi bekleniyor</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
       <details class="system-details">
         <summary>
           <span data-i18n="systemDetails">Sistem Ayrıntıları</span>
@@ -190,6 +141,55 @@
           </article>
         </section>
       </details>
+
+      <section class="chart-grid" aria-label="System history charts">
+        <article class="chart-card">
+          <div class="card-header">
+            <h2 data-i18n="resourceUsage">Kaynak Kullanımı</h2>
+            <span data-i18n="resourceUsageSubtitle">CPU / RAM / Disk</span>
+          </div>
+          <div class="chart-frame">
+            <canvas id="resourceChart"></canvas>
+          </div>
+        </article>
+        <article class="chart-card">
+          <div class="card-header">
+            <h2 data-i18n="securityTrend">Güvenlik Trendi</h2>
+            <span data-i18n="scoreHistory">Skor geçmişi</span>
+          </div>
+          <div class="chart-frame">
+            <canvas id="scoreChart"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="records-section" aria-label="Recent system records">
+        <div class="card-header">
+          <h2 data-i18n="recentRecords">Son Kayıtlar</h2>
+          <span id="lastUpdated">Henüz güncellenmedi</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="tableTime">Zaman</th>
+                <th>CPU</th>
+                <th>RAM</th>
+                <th>Disk</th>
+                <th data-i18n="tableProcesses">Process</th>
+                <th data-i18n="tableThreat">Tehdit</th>
+                <th data-i18n="tablePorts">Port</th>
+                <th data-i18n="tableScore">Skor</th>
+              </tr>
+            </thead>
+            <tbody id="recordsTable">
+              <tr>
+                <td colspan="8" class="empty-state">Backend verisi bekleniyor</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section class="storage-section" aria-label="Storage hygiene overview">
         <div class="card-header">
