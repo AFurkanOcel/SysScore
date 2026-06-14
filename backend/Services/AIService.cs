@@ -70,7 +70,7 @@ namespace SysScore.Services
             if (!string.Equals(currentData.ThreatLevel, "None", StringComparison.OrdinalIgnoreCase) &&
                 currentData.ThreatScore > 0)
             {
-                findings.Add($"{currentData.ThreatType} tespit edildi. Tehdit seviyesi: {TranslateThreatLevel(currentData.ThreatLevel)}, tehdit skoru: {currentData.ThreatScore}.");
+                findings.Add(GetThreatFinding(currentData));
 
                 if (!string.IsNullOrWhiteSpace(currentData.ThreatEvidence))
                 {
@@ -172,6 +172,21 @@ namespace SysScore.Services
             }
 
             return LimitExplanationLength(string.Join(" ", findings));
+        }
+
+        private static string GetThreatFinding(SystemData currentData)
+        {
+            string threatLevel = TranslateThreatLevel(currentData.ThreatLevel);
+
+            return currentData.ThreatType switch
+            {
+                "Exposed Service Surface Increase" =>
+                    $"Açık Servis Yüzeyi Artışı tespit edildi. Bu durum doğrudan saldırı kanıtı değil, dışa açık servis yüzeyinde belirgin genişleme riskidir. Tehdit seviyesi: {threatLevel}, tehdit skoru: {currentData.ThreatScore}.",
+                "Port Scan / Worm-like Network Activity" =>
+                    $"Port Scan / Worm-like Network Activity tespit edildi. Bu davranış port tarama veya solucan benzeri ağ yayılımı göstergesi olabilir. Tehdit seviyesi: {threatLevel}, tehdit skoru: {currentData.ThreatScore}.",
+                _ =>
+                    $"{currentData.ThreatType} tespit edildi. Tehdit seviyesi: {threatLevel}, tehdit skoru: {currentData.ThreatScore}."
+            };
         }
 
         private static string GetSeverityLead(int securityScore)

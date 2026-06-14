@@ -212,9 +212,15 @@ const DYNAMIC_TEXT_TRANSLATIONS = [
   ["Kritik sistem riski tespit edildi: acil inceleme önerilir.", "Critical system risk detected: immediate review is recommended."],
   ["Güvenlik skoru önceki kayda göre düştü; sistemde artan risk göstergeleri incelenmelidir.", "The security score decreased compared with the previous record; increasing risk indicators should be reviewed."],
   ["Port Scan / Worm-like Network Activity tespit edildi.", "Port Scan / Worm-like Network Activity detected."],
+  ["Açık Servis Yüzeyi Artışı tespit edildi.", "Exposed Service Surface Increase detected."],
+  ["Bu durum doğrudan saldırı kanıtı değil, dışa açık servis yüzeyinde belirgin genişleme riskidir.", "This is not direct evidence of an attack; it is a clear expansion risk in the exposed service surface."],
+  ["Bu davranış port tarama veya solucan benzeri ağ yayılımı göstergesi olabilir.", "This behavior may indicate port scanning or worm-like network propagation."],
   ["Aktif ağ tabanlı saldırı davranışı tespit edilmedi.", "No active network-based attack behavior detected."],
   ["Normal izlemeye devam edin.", "Continue normal monitoring."],
   ["ss -tulpen ile aktif servisleri ve bağlantıları inceleyin.", "Review active services and connections with ss -tulpen."],
+  ["Yeni açılan servisleri ss -tulpen ile doğrulayın.", "Validate newly opened services with ss -tulpen."],
+  ["Gereksiz servisleri kapatın veya sadece gerekli arayüzlerde dinleyecek şekilde sınırlandırın.", "Disable unnecessary services or restrict them to required interfaces only."],
+  ["Firewall kurallarını ve dışa açık portları gözden geçirin.", "Review firewall rules and externally exposed ports."],
   ["Gereksiz açık portları kapatın veya firewall ile sınırlandırın.", "Close unnecessary open ports or restrict them with a firewall."],
   ["Şüpheli uzak adresleri doğrulayıp gerekiyorsa ağ seviyesinde engelleyin.", "Validate suspicious remote addresses and block them at the network level if needed."],
   ["Firewall durumunu kontrol edin: sudo ufw status", "Check firewall status: sudo ufw status"],
@@ -253,6 +259,8 @@ const DYNAMIC_REGEX_TRANSLATIONS = [
   [/Birden fazla uzak adrese bağlantı davranışı var: (\d+) hedef\./g, "Connections to multiple remote addresses were observed: $1 targets."],
   [/Toplam ağ bağlantı sayısı yüksek: (\d+)\./g, "Total network connection count is high: $1."],
   [/Dinleyen port sayısı genişledi: (\d+) port\./g, "Listening port exposure increased: $1 ports."],
+  [/Dinleyen port sayısı önceki kayda göre belirgin arttı: \+(-?\d+)\./g, "Listening port count increased significantly compared with the previous record: +$1."],
+  [/Toplam dinleyen port sayısı yüksek seviyeye ulaştı: (\d+) port\./g, "Total listening port count reached a high level: $1 ports."],
 ];
 
 const elements = {
@@ -374,6 +382,10 @@ function translateThreatType(value) {
 
   if (value === "Port Scan / Worm-like Network Activity") {
     return "Port Tarama / Solucan Benzeri Ağ Aktivitesi";
+  }
+
+  if (value === "Exposed Service Surface Increase") {
+    return "Açık Servis Yüzeyi Artışı";
   }
 
   return value;
