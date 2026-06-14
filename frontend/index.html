@@ -83,6 +83,19 @@
         </div>
       </section>
 
+      <section class="threat-history-section" aria-label="Threat event history">
+        <div class="card-header">
+          <div>
+            <p class="section-label" data-i18n="threatHistoryTitle">Geçmiş Tehditler</p>
+            <h2 data-i18n="threatHistorySubtitle">SQL Server üzerinde kayıtlı son tehdit olayları</h2>
+          </div>
+          <span id="threatHistoryCount">0</span>
+        </div>
+        <div class="threat-history-list" id="threatHistoryList">
+          <article class="empty-state" data-i18n="noThreatHistory">Henüz tehdit geçmişi bulunmuyor.</article>
+        </div>
+      </section>
+
       <details class="system-details">
         <summary>
           <span data-i18n="systemDetails">Sistem Ayrıntıları</span>
@@ -189,26 +202,30 @@
         </div>
       </section>
 
-      <section class="storage-section" aria-label="Storage hygiene overview">
-        <div class="card-header">
-          <h2 data-i18n="storageHygiene">Depolama Hijyeni</h2>
-          <span data-i18n="storageSubtitle">Geçici, cache ve çöp dosyası izleme</span>
+      <details class="storage-section" aria-label="Storage hygiene overview">
+        <summary>
+          <div>
+            <h2 data-i18n="storageHygiene">Depolama Hijyeni</h2>
+            <span data-i18n="storageSubtitle">Geçici, cache ve çöp dosyası izleme</span>
+          </div>
+          <div class="storage-grid">
+            <article class="storage-stat">
+              <span data-i18n="unnecessaryFiles">Gereksiz Dosyalar</span>
+              <strong id="unnecessaryFileCount">--</strong>
+            </article>
+            <article class="storage-stat">
+              <span data-i18n="totalSize">Toplam Boyut</span>
+              <strong id="unnecessaryFileSizeMb">--</strong>
+            </article>
+          </div>
+        </summary>
+        <div class="storage-details-body">
+          <p class="storage-locations" id="unnecessaryFileLocations">Taranan konumlar burada görünecek.</p>
+          <ul class="storage-list" id="largestUnnecessaryFiles">
+            <li>Henüz gereksiz dosya örneği tespit edilmedi.</li>
+          </ul>
         </div>
-        <div class="storage-grid">
-          <article class="storage-stat">
-            <span data-i18n="unnecessaryFiles">Gereksiz Dosyalar</span>
-            <strong id="unnecessaryFileCount">--</strong>
-          </article>
-          <article class="storage-stat">
-            <span data-i18n="totalSize">Toplam Boyut</span>
-            <strong id="unnecessaryFileSizeMb">--</strong>
-          </article>
-        </div>
-        <p class="storage-locations" id="unnecessaryFileLocations">Taranan konumlar burada görünecek.</p>
-        <ul class="storage-list" id="largestUnnecessaryFiles">
-          <li>Henüz gereksiz dosya örneği tespit edilmedi.</li>
-        </ul>
-      </section>
+      </details>
     </main>
 
     <script src="./node_modules/chart.js/dist/chart.umd.js"></script>

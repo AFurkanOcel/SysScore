@@ -12,6 +12,8 @@ namespace SysScore.Data
 
         public DbSet<SystemData> SystemDataRecords { get; set; }
 
+        public DbSet<ThreatEvent> ThreatEvents { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SystemData>(entity =>
@@ -50,6 +52,35 @@ namespace SysScore.Data
                 entity.Property(data => data.ThreatLevel).HasMaxLength(30);
                 entity.Property(data => data.ThreatEvidence).HasMaxLength(1500);
                 entity.Property(data => data.RecommendedActions).HasMaxLength(1500);
+            });
+
+            modelBuilder.Entity<ThreatEvent>(entity =>
+            {
+                entity.ToTable("ThreatEvents");
+                entity.HasKey(threatEvent => threatEvent.Id);
+
+                entity.Property(threatEvent => threatEvent.ThreatType)
+                    .HasMaxLength(120)
+                    .IsRequired();
+                entity.Property(threatEvent => threatEvent.ThreatLevel)
+                    .HasMaxLength(30)
+                    .IsRequired();
+                entity.Property(threatEvent => threatEvent.ThreatScore).IsRequired();
+                entity.Property(threatEvent => threatEvent.Evidence)
+                    .HasMaxLength(1500)
+                    .IsRequired();
+                entity.Property(threatEvent => threatEvent.RecommendedActions)
+                    .HasMaxLength(1500)
+                    .IsRequired();
+                entity.Property(threatEvent => threatEvent.Status)
+                    .HasMaxLength(80)
+                    .IsRequired();
+                entity.Property(threatEvent => threatEvent.DetectedAt).IsRequired();
+
+                entity.HasOne(threatEvent => threatEvent.SystemData)
+                    .WithMany()
+                    .HasForeignKey(threatEvent => threatEvent.SystemDataId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

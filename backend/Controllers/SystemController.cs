@@ -41,6 +41,11 @@ namespace SysScore.Controllers
             systemData.Explanation = await aiService.GenerateExplanationAsync(systemData, previousData);
 
             dbContext.SystemDataRecords.Add(systemData);
+            if (HasThreat(systemData))
+            {
+                dbContext.ThreatEvents.Add(CreateThreatEvent(systemData));
+            }
+
             await dbContext.SaveChangesAsync();
 
             return Ok(systemData);
@@ -69,6 +74,37 @@ namespace SysScore.Controllers
                 .ToListAsync();
 
             return Ok(history);
+        }
+
+        private static bool HasThreat(SystemData systemData)
+        {
+            return !string.Equals(systemData.ThreatLevel, "None", StringComparison.OrdinalIgnoreCase) &&
+                systemData.ThreatScore > 0;
+        }
+
+        private static ThreatEvent CreateThreatEvent(SystemData systemData)
+        {
+            return new ThreatEvent
+            {
+                SystemData = systemData,
+                ThreatType = systemData.ThreatType ?? "Unknown Threat",
+                ThreatLevel = systemData.ThreatLevel ?? "Unknown",
+                ThreatScore = systemData.ThreatScore,
+                Evidence = systemData.ThreatEvidence ?? string.Empty,
+                RecommendedActions = systemData.RecommendedActions ?? string.Empty,
+                Status = GetThreatEventStatus(systemData.ThreatLevel),
+                DetectedAt = systemData.ThreatDetectedAt ?? systemData.Timestamp
+            };
+        }
+
+        private static string GetThreatEventStatus(string? threatLevel)
+        {
+            return threatLevel?.ToLowerInvariant() switch
+            {
+                "critical" => "Admin Action Required",
+                "high" => "Review Recommended",
+                _ => "Detection Recorded"
+            };
         }
     }
 }

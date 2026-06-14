@@ -71,6 +71,16 @@ const TRANSLATIONS = {
     threatDetectedAt: "Son Tespit",
     threatEvidence: "Kanıtlar",
     recommendedActions: "Önerilen Müdahale",
+    threatHistoryTitle: "Geçmiş Tehditler",
+    threatHistorySubtitle: "SQL Server üzerinde kayıtlı son tehdit olayları",
+    threatHistoryCount: "Kayıtlı Olay",
+    noThreatHistory: "Henüz tehdit geçmişi bulunmuyor.",
+    threatEventStatus: "Durum",
+    detectionRecorded: "Tespit Kaydedildi",
+    reviewRecommended: "İnceleme Önerildi",
+    adminActionRequired: "Yönetici Müdahalesi Gerekli",
+    evidence: "Kanıt",
+    response: "Müdahale",
     noThreatType: "Aktif tehdit yok",
     noThreatEvidence: "Aktif ağ tabanlı saldırı davranışı tespit edilmedi.",
     noThreatAction: "Normal izlemeye devam edin.",
@@ -138,6 +148,16 @@ const TRANSLATIONS = {
     threatDetectedAt: "Last Detection",
     threatEvidence: "Evidence",
     recommendedActions: "Recommended Actions",
+    threatHistoryTitle: "Threat History",
+    threatHistorySubtitle: "Latest threat events stored in SQL Server",
+    threatHistoryCount: "Recorded Events",
+    noThreatHistory: "No threat history has been recorded yet.",
+    threatEventStatus: "Status",
+    detectionRecorded: "Detection Recorded",
+    reviewRecommended: "Review Recommended",
+    adminActionRequired: "Admin Action Required",
+    evidence: "Evidence",
+    response: "Response",
     noThreatType: "No active threat",
     noThreatEvidence: "No active network-based attack behavior detected.",
     noThreatAction: "Continue normal monitoring.",
@@ -271,6 +291,8 @@ const elements = {
   threatDetectedAt: document.getElementById("threatDetectedAt"),
   threatEvidenceList: document.getElementById("threatEvidenceList"),
   recommendedActionsList: document.getElementById("recommendedActionsList"),
+  threatHistoryCount: document.getElementById("threatHistoryCount"),
+  threatHistoryList: document.getElementById("threatHistoryList"),
 };
 
 let resourceChart;
@@ -278,6 +300,7 @@ let scoreChart;
 let refreshTimerId;
 let isRefreshing = false;
 let monitoredRecords = [];
+let monitoredThreatEvents = [];
 let currentLanguage = DEFAULT_LANGUAGE;
 let connectionIsOnline = null;
 
@@ -461,6 +484,7 @@ function applyLanguage(language) {
   updateScore(latest, monitoredRecords);
   updateExplanation(latest, monitoredRecords);
   updateThreatPanel(latest);
+  updateThreatHistory(monitoredThreatEvents);
   updateRecordsTable(monitoredRecords);
 }
 
@@ -654,6 +678,20 @@ function getThreatHeadline(level) {
   return t("noThreatHeadline");
 }
 
+function getThreatEventStatusLabel(status) {
+  const normalizedStatus = String(status || "").toLowerCase();
+
+  if (normalizedStatus === "admin action required") {
+    return t("adminActionRequired");
+  }
+
+  if (normalizedStatus === "review recommended") {
+    return t("reviewRecommended");
+  }
+
+  return t("detectionRecorded");
+}
+
 function updateThreatPanel(latest) {
   const threatLevel = latest?.threatLevel || "None";
   const threatClass = getThreatClass(threatLevel);
@@ -680,6 +718,56 @@ function updateThreatPanel(latest) {
     elements.recommendedActionsList,
     splitList(latest?.recommendedActions, t("noThreatAction")),
   );
+}
+
+function updateThreatHistory(threatEvents) {
+  const events = Array.isArray(threatEvents) ? threatEvents.slice(0, 20) : [];
+  elements.threatHistoryCount.textContent = `${events.length} ${t("threatHistoryCount")}`;
+
+  if (events.length === 0) {
+    elements.threatHistoryList.innerHTML =
+      `<article class="empty-state">${t("noThreatHistory")}</article>`;
+    return;
+  }
+
+  elements.threatHistoryList.innerHTML = events
+    .map((event, index) => {
+      const threatClass = getThreatClass(event.threatLevel);
+      const isRecent = index < 3 ? " recent-threat-event" : "";
+      const evidenceItems = splitList(event.evidence, t("unknown"))
+        .slice(0, 2)
+        .map((item) => `<li>${escapeHtml(translateDynamicText(item))}</li>`)
+        .join("");
+      const actionItems = splitList(event.recommendedActions, t("unknown"))
+        .slice(0, 2)
+        .map((item) => `<li>${escapeHtml(translateDynamicText(item))}</li>`)
+        .join("");
+
+      return `
+        <article class="threat-history-item ${threatClass}${isRecent}">
+          <div class="threat-history-main">
+            <span class="threat-badge ${threatClass}">${getThreatLabel(event.threatLevel)}</span>
+            <strong>${escapeHtml(translateThreatType(event.threatType) || t("unknown"))}</strong>
+            <small>${formatTime(event.detectedAt)}</small>
+          </div>
+          <div class="threat-history-meta">
+            <span>${t("threatScore")}: ${formatNumber(Number(event.threatScore))}</span>
+            <span>${t("threatEventStatus")}: ${getThreatEventStatusLabel(event.status)}</span>
+          </div>
+          <div class="threat-history-detail">
+            <div>
+              <span>${t("evidence")}</span>
+              <ul>${evidenceItems}</ul>
+            </div>
+            <div>
+              <span>${t("response")}</span>
+              <ul>${actionItems}</ul>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
 }
 
 function updateStorageHygiene(latest) {
@@ -885,16 +973,19 @@ async function refreshDashboard() {
   isRefreshing = true;
 
   try {
-    const [latest, history] = await Promise.all([
+    const [latest, history, threatEvents] = await Promise.all([
       fetchJson("/api/system-data/latest"),
       fetchJson("/api/system-data/history"),
+      fetchJson("/api/threat-events/recent?limit=20"),
     ]);
     const liveHistory = mergeMonitoredRecords(latest, history);
+    monitoredThreatEvents = Array.isArray(threatEvents) ? threatEvents : [];
 
     updateScore(latest, liveHistory);
     updateMetrics(latest);
     updateExplanation(latest, liveHistory);
     updateThreatPanel(latest);
+    updateThreatHistory(monitoredThreatEvents);
     updateStorageHygiene(latest);
     updateRecordsTable(liveHistory);
     updateCharts(liveHistory);
