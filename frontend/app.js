@@ -918,6 +918,15 @@ async function fetchJson(path) {
   return response.json();
 }
 
+async function fetchOptionalJson(path, fallbackValue) {
+  try {
+    return await fetchJson(path);
+  } catch (error) {
+    console.warn(`Optional request failed for ${path}:`, error);
+    return fallbackValue;
+  }
+}
+
 function normalizeHistory(history) {
   if (!Array.isArray(history)) {
     return [];
@@ -973,11 +982,11 @@ async function refreshDashboard() {
   isRefreshing = true;
 
   try {
-    const [latest, history, threatEvents] = await Promise.all([
+    const [latest, history] = await Promise.all([
       fetchJson("/api/system-data/latest"),
       fetchJson("/api/system-data/history"),
-      fetchJson("/api/threat-events/recent?limit=20"),
     ]);
+    const threatEvents = await fetchOptionalJson("/api/threat-events/recent?limit=20", monitoredThreatEvents);
     const liveHistory = mergeMonitoredRecords(latest, history);
     monitoredThreatEvents = Array.isArray(threatEvents) ? threatEvents : [];
 
