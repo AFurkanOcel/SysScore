@@ -482,7 +482,7 @@ h2 {
 .threat-history-list {
   display: grid;
   gap: 10px;
-  max-height: 420px;
+  max-height: 255px;
   overflow: auto;
   padding-right: 6px;
 }

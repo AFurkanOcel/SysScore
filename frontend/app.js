@@ -71,8 +71,8 @@ const TRANSLATIONS = {
     threatDetectedAt: "Son Tespit",
     threatEvidence: "Kanıtlar",
     recommendedActions: "Önerilen Müdahale",
-    threatHistoryTitle: "Geçmiş Tehditler",
-    threatHistorySubtitle: "SQL Server üzerinde kayıtlı son tehdit olayları",
+    threatHistoryTitle: "Tehdit Kayıtları",
+    threatHistorySubtitle: "SQL Server üzerinde kayıtlı son güvenlik olayları",
     threatHistoryCount: "Kayıtlı Olay",
     noThreatHistory: "Henüz tehdit geçmişi bulunmuyor.",
     threatEventStatus: "Durum",
@@ -148,8 +148,8 @@ const TRANSLATIONS = {
     threatDetectedAt: "Last Detection",
     threatEvidence: "Evidence",
     recommendedActions: "Recommended Actions",
-    threatHistoryTitle: "Threat History",
-    threatHistorySubtitle: "Latest threat events stored in SQL Server",
+    threatHistoryTitle: "Threat Records",
+    threatHistorySubtitle: "Latest security events stored in SQL Server",
     threatHistoryCount: "Recorded Events",
     noThreatHistory: "No threat history has been recorded yet.",
     threatEventStatus: "Status",
@@ -437,7 +437,7 @@ function formatMinuteTime(timestamp) {
 }
 
 function formatDateTime(parsedTimestamp) {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat(currentLanguage === "tr" ? "tr-TR" : "en-US", {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     hour: "2-digit",
     minute: "2-digit",
@@ -451,9 +451,8 @@ function parseBackendTimestamp(timestamp) {
   }
 
   const value = String(timestamp);
-  const hasTimeZone = /z$|[+-]\d{2}:\d{2}$/i.test(value);
 
-  return new Date(hasTimeZone ? value : `${value}Z`);
+  return new Date(value);
 }
 
 function setConnectionStatus(isOnline, message) {
