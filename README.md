@@ -49,7 +49,7 @@ The dashboard is Turkish by default for Pardus-focused usage and includes an Eng
 
 ### Stable Security Score & Explanation
 
-The dashboard shows a live security score, risk severity and AI-supported explanation. In stable conditions, the score remains high and the explanation confirms that no immediate risk pattern is detected.
+The dashboard shows a live security score, risk severity and AI-supported explanation. In stable conditions, the score remains high, the explanation confirms that no immediate risk pattern is detected, and the Active Threat Status panel stays in the `No Threat` state.
 
 <img width="1040" alt="Stable Security Score and AI Explanation" src="assets/screenshots/stable-security-score-ai-explanation.png" />
 
@@ -280,57 +280,29 @@ SysScore/
 │── LICENSE
 │
 ├── agent/
-│   ├── agent.py
-│   └── requirements.txt
+│   └── Python system monitoring agent
 │
 ├── assets/
 │   ├── icons/
-│   │   └── sysscore_icon.png
 │   └── screenshots/
-│       ├── stable-security-score-ai-explanation.png
-│       ├── threat-security-score-ai-explanation.png
-│       ├── active-threat-status-and-records.png
-│       ├── system-details-panel.png
-│       ├── charts-and-recent-records.png
-│       └── storage-hygiene-panel.png
 │
 ├── backend/
 │   ├── Controllers/
-│   │   ├── SystemController.cs
-│   │   └── ThreatEventsController.cs
 │   ├── Data/
-│   │   └── AppDbContext.cs
 │   ├── Models/
-│   │   ├── SystemData.cs
-│   │   └── ThreatEvent.cs
 │   ├── Services/
-│   │   ├── ScoreService.cs
-│   │   ├── ThreatDetectionService.cs
-│   │   └── AIService.cs
 │   ├── Migrations/
-│   ├── Program.cs
-│   ├── appsettings.json
-│   └── SysScore.csproj
+│   └── ASP.NET Core Web API
 │
 ├── frontend/
-│   ├── index.html
-│   ├── styles.css
-│   ├── app.js
-│   ├── server.js
-│   ├── package.json
-│   └── package-lock.json
+│   └── HTML/CSS/JavaScript dashboard
 │
 ├── tests/
 │   └── security_scenarios/
-│       ├── _socket_demo_common.py
-│       ├── low_worm_like_network.py
-│       ├── medium_worm_like_network.py
-│       ├── high_worm_like_network.py
-│       ├── low_exposed_service_surface.py
-│       └── medium_exposed_service_surface.py
+│       └── Safe localhost threat simulation scripts
 │
 └── tools/
-    └── worm_like_network_demo.py
+    └── Additional local demo utilities
 ```
 
 ---
