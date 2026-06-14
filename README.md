@@ -457,20 +457,30 @@ Dashboard:
 http://localhost:5173
 ```
 
-### 7. Run Safe Threat Detection Demo
+### 7. Run Safe Security Scenario Tests
 
-The demo script does not run malware and does not require root privileges. It creates temporary localhost listeners and short-lived local connections to simulate worm-like network activity safely.
+The scenario scripts do not run malware and do not require root privileges. They only create temporary localhost socket activity on `127.0.0.1`; they do not modify files, firewall rules, system services, or external hosts.
 
-```bash
-agent/venv/bin/python tools/worm_like_network_demo.py
-```
+The agent can stay in its normal 60-second mode. Each scenario remains active for 75 seconds so the next minute-boundary agent measurement can observe it.
 
-Expected result:
+Run one scenario at a time from the repository root:
 
-* The agent observes a temporary network burst.
-* The backend detects `Port Scan / Worm-like Network Activity`.
-* The dashboard shows an active threat alert.
-* The security score decreases and the explanation includes evidence and recommended actions.
+| Scenario | Command | Expected result |
+| --- | --- | --- |
+| Low worm-like activity | `python3 tests/security_scenarios/low_worm_like_network.py` | `Port Scan / Worm-like Network Activity`, usually `Low` |
+| Medium worm-like activity | `python3 tests/security_scenarios/medium_worm_like_network.py` | `Port Scan / Worm-like Network Activity`, usually `Medium` |
+| High worm-like activity | `python3 tests/security_scenarios/high_worm_like_network.py` | `Port Scan / Worm-like Network Activity`, usually `High` |
+| Low exposed service surface | `python3 tests/security_scenarios/low_exposed_service_surface.py` | `Exposed Service Surface Increase`, usually `Low` |
+| Medium exposed service surface | `python3 tests/security_scenarios/medium_exposed_service_surface.py` | `Exposed Service Surface Increase`, usually `Medium` |
+
+Expected dashboard behavior:
+
+* Active Threat Status updates after the next agent measurement.
+* The security score changes according to the detected risk intensity.
+* The AI/security explanation includes evidence and recommended actions.
+* Threat Records receives a real SQL Server-backed event.
+
+Exact scores may vary slightly depending on the current system and network baseline.
 
 ---
 
@@ -502,7 +512,7 @@ If Ollama is unavailable, SysScore continues to work with fallback explanations.
 * The unnecessary file monitoring feature does not delete files.
 * The agent only scans limited locations: `/tmp`, `~/.cache`, and `~/.local/share/Trash/files`.
 * Permission errors during scanning are ignored safely.
-* The worm-like demo script only uses localhost and does not attack external systems.
+* The security scenario scripts only use localhost and do not attack external systems.
 * Automatic firewall blocking is intentionally not enabled to avoid false-positive availability issues.
 * AI explanation failure does not stop backend processing.
 * The system is intended for local monitoring and academic demonstration.
