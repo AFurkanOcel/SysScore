@@ -278,14 +278,11 @@ SysScore/
 │── docker-compose.yml
 │── README.md
 │── LICENSE
-│
 ├── agent/
 │   └── Python system monitoring agent
-│
 ├── assets/
 │   ├── icons/
 │   └── screenshots/
-│
 ├── backend/
 │   ├── Controllers/
 │   ├── Data/
@@ -293,14 +290,11 @@ SysScore/
 │   ├── Services/
 │   ├── Migrations/
 │   └── ASP.NET Core Web API
-│
 ├── frontend/
 │   └── HTML/CSS/JavaScript dashboard
-│
 ├── tests/
 │   └── security_scenarios/
 │       └── Safe localhost threat simulation scripts
-│
 └── tools/
     └── Additional local demo utilities
 ```
