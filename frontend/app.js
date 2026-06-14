@@ -278,6 +278,7 @@ let refreshTimerId;
 let isRefreshing = false;
 let monitoredRecords = [];
 let currentLanguage = DEFAULT_LANGUAGE;
+let connectionIsOnline = null;
 
 function formatPercent(value) {
   return Number.isFinite(value) ? `${value.toFixed(1)}%` : "--";
@@ -385,6 +386,21 @@ function formatTime(timestamp) {
 
   const parsedTimestamp = parseBackendTimestamp(timestamp);
 
+  return formatDateTime(parsedTimestamp);
+}
+
+function formatMinuteTime(timestamp) {
+  if (!timestamp) {
+    return "--";
+  }
+
+  const parsedTimestamp = parseBackendTimestamp(timestamp);
+  parsedTimestamp.setSeconds(0, 0);
+
+  return formatDateTime(parsedTimestamp);
+}
+
+function formatDateTime(parsedTimestamp) {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     hour: "2-digit",
@@ -405,6 +421,7 @@ function parseBackendTimestamp(timestamp) {
 }
 
 function setConnectionStatus(isOnline, message) {
+  connectionIsOnline = isOnline;
   elements.connectionStatus.textContent = message || (isOnline ? t("online") : t("offline"));
   elements.connectionStatus.classList.toggle("online", isOnline);
   elements.connectionStatus.classList.toggle("offline", !isOnline);
@@ -433,6 +450,10 @@ function applyLanguage(language) {
     resourceChart.data.datasets[2].label = currentLanguage === "tr" ? "Disk" : "Disk";
     resourceChart.data.datasets[3].label = "Swap";
     resourceChart.update("none");
+  }
+
+  if (connectionIsOnline !== null) {
+    setConnectionStatus(connectionIsOnline);
   }
 
   const latest = monitoredRecords[0];
@@ -768,7 +789,7 @@ function createCharts() {
 
 function updateCharts(history) {
   const chartRecords = history.slice(0, HISTORY_LIMIT).reverse();
-  const labels = chartRecords.map((record) => formatTime(record.timestamp));
+  const labels = chartRecords.map((record) => formatMinuteTime(record.timestamp));
 
   resourceChart.data.labels = labels;
   resourceChart.data.datasets[0].data = chartRecords.map((record) => Number(record.cpuUsage) || 0);

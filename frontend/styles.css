@@ -67,7 +67,17 @@ body {
 }
 
 .brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 18px;
   min-width: 0;
+}
+
+.brand-icon {
+  width: clamp(72px, 8vw, 104px);
+  height: clamp(72px, 8vw, 104px);
+  flex: 0 0 auto;
+  object-fit: contain;
 }
 
 .topbar-actions {
@@ -167,31 +177,13 @@ h2 {
 
 .score-panel {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 24px;
   align-items: center;
   padding: 26px;
   transition:
     border-color 180ms ease,
     box-shadow 180ms ease;
-}
-
-.score-icon-wrap {
-  display: grid;
-  width: clamp(92px, 12vw, 132px);
-  height: clamp(92px, 12vw, 132px);
-  place-items: center;
-  border: 1px solid rgba(61, 214, 208, 0.22);
-  border-radius: 8px;
-  background:
-    radial-gradient(circle at 50% 35%, rgba(61, 214, 208, 0.12), transparent 62%),
-    rgba(21, 31, 43, 0.72);
-}
-
-.score-icon {
-  width: 78%;
-  height: 78%;
-  object-fit: contain;
 }
 
 .score-value {
@@ -719,6 +711,15 @@ tbody tr:hover {
     grid-template-columns: 1fr;
   }
 
+  .brand-lockup {
+    align-items: flex-start;
+  }
+
+  .brand-icon {
+    width: 64px;
+    height: 64px;
+  }
+
   .topbar-actions,
   .system-details summary {
     align-items: flex-start;
@@ -744,11 +745,6 @@ tbody tr:hover {
   .score-ring {
     width: 128px;
     height: 128px;
-  }
-
-  .score-icon-wrap {
-    width: 112px;
-    height: 112px;
   }
 
   .score-ring span {
