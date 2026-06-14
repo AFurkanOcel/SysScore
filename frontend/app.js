@@ -1,5 +1,6 @@
 const API_BASE_URL = window.SYSSCORE_API_BASE_URL || "http://localhost:5070";
 const REFRESH_INTERVAL_MS = 60000;
+const REFRESH_ALIGNMENT_OFFSET_MS = 3000;
 const HISTORY_LIMIT = 20;
 const MAX_MONITORED_RECORDS = 100;
 const DEFAULT_LANGUAGE = "tr";
@@ -911,12 +912,26 @@ async function refreshDashboard() {
 
 function scheduleRefresh() {
   clearTimeout(refreshTimerId);
-  refreshTimerId = setTimeout(refreshDashboard, REFRESH_INTERVAL_MS);
+  const now = Date.now();
+  let nextRefreshAt = Math.ceil(now / REFRESH_INTERVAL_MS) * REFRESH_INTERVAL_MS + REFRESH_ALIGNMENT_OFFSET_MS;
+
+  if (nextRefreshAt <= now) {
+    nextRefreshAt += REFRESH_INTERVAL_MS;
+  }
+
+  refreshTimerId = setTimeout(refreshDashboard, nextRefreshAt - now);
+}
+
+function resizeCharts() {
+  resourceChart?.resize();
+  scoreChart?.resize();
 }
 
 elements.languageButtons.forEach((button) => {
   button.addEventListener("click", () => applyLanguage(button.dataset.language));
 });
+
+window.addEventListener("resize", resizeCharts);
 
 createCharts();
 applyLanguage(DEFAULT_LANGUAGE);

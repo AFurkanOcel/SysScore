@@ -51,7 +51,7 @@ def get_poll_interval() -> int:
     return interval
 
 
-def collect_system_data() -> dict[str, float | int | str]:
+def collect_system_data(measured_at: datetime) -> dict[str, float | int | str]:
     disk = psutil.disk_usage("/")
     swap = psutil.swap_memory()
     boot_time = psutil.boot_time()
@@ -60,6 +60,7 @@ def collect_system_data() -> dict[str, float | int | str]:
     storage_hygiene = collect_storage_hygiene()
 
     return {
+        "timestamp": measured_at.isoformat(),
         "cpuUsage": psutil.cpu_percent(interval=1),
         "ramUsage": psutil.virtual_memory().percent,
         "diskUsage": disk.percent,
@@ -257,6 +258,25 @@ def send_system_data(api_url: str, payload: dict[str, float | int | str]) -> Non
     )
 
 
+def get_next_poll_delay(interval_seconds: int, offset_seconds: float = 0.0) -> float:
+    now = time.time()
+    next_boundary = ((int(now) // interval_seconds) + 1) * interval_seconds + offset_seconds
+
+    if next_boundary <= now:
+        next_boundary += interval_seconds
+
+    return max(0.0, next_boundary - now)
+
+
+def get_measurement_timestamp(interval_seconds: int) -> datetime:
+    measured_at = datetime.now(timezone.utc)
+
+    if interval_seconds >= 60:
+        return measured_at.replace(second=0, microsecond=0)
+
+    return measured_at.replace(microsecond=0)
+
+
 def run_agent() -> None:
     api_url = get_api_url()
     poll_interval = get_poll_interval()
@@ -264,10 +284,11 @@ def run_agent() -> None:
     log(f"SysScore agent started. ApiUrl={api_url}, PollInterval={poll_interval}s")
 
     while True:
-        started_at = time.monotonic()
+        time.sleep(get_next_poll_delay(poll_interval))
+        measured_at = get_measurement_timestamp(poll_interval)
 
         try:
-            payload = collect_system_data()
+            payload = collect_system_data(measured_at)
             send_system_data(api_url, payload)
         except requests.RequestException as error:
             log(f"Backend request failed: {error}")
@@ -277,9 +298,6 @@ def run_agent() -> None:
             log(f"Backend response could not be parsed: {error}")
         except Exception as error:
             log(f"Unexpected agent error: {error}")
-
-        elapsed_seconds = time.monotonic() - started_at
-        time.sleep(max(0, poll_interval - elapsed_seconds))
 
 
 if __name__ == "__main__":
