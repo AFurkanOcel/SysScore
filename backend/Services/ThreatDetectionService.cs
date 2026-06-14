@@ -27,7 +27,7 @@ namespace SysScore.Services
 
             if (connectionDelta >= 30)
             {
-                networkThreatScore += 20;
+                networkThreatScore += ScaledScore(connectionDelta, 30, 800, 20, 45);
                 networkEvidence.Add($"Ağ bağlantı sayısı kısa sürede {connectionDelta} arttı.");
             }
             else if (connectionDelta >= 15)
@@ -38,19 +38,19 @@ namespace SysScore.Services
 
             if (data.SynSentConnectionCount >= 10)
             {
-                networkThreatScore += 25;
+                networkThreatScore += ScaledScore(data.SynSentConnectionCount, 10, 80, 25, 45);
                 networkEvidence.Add($"SYN_SENT durumunda {data.SynSentConnectionCount} bağlantı gözlendi.");
             }
 
             if (data.TimeWaitConnectionCount >= 40)
             {
-                networkThreatScore += 20;
+                networkThreatScore += ScaledScore(data.TimeWaitConnectionCount, 40, 300, 20, 35);
                 networkEvidence.Add($"Kısa ömürlü bağlantıları gösteren TIME_WAIT sayısı yüksek: {data.TimeWaitConnectionCount}.");
             }
 
             if (data.UniqueRemotePortCount >= 20)
             {
-                networkThreatScore += 25;
+                networkThreatScore += ScaledScore(data.UniqueRemotePortCount, 20, 100, 25, 40);
                 networkEvidence.Add($"Kısa aralıkta {data.UniqueRemotePortCount} farklı uzak porta bağlantı davranışı tespit edildi.");
             }
             else if (data.UniqueRemotePortCount >= 10)
@@ -61,21 +61,20 @@ namespace SysScore.Services
 
             if (data.UniqueRemoteAddressCount >= 10)
             {
-                networkThreatScore += 20;
+                networkThreatScore += ScaledScore(data.UniqueRemoteAddressCount, 10, 60, 20, 35);
                 networkEvidence.Add($"Birden fazla uzak adrese bağlantı davranışı var: {data.UniqueRemoteAddressCount} hedef.");
             }
 
             if (data.NetworkConnectionCount >= 150)
             {
-                networkThreatScore += 10;
+                networkThreatScore += ScaledScore(data.NetworkConnectionCount, 150, 1000, 10, 25);
                 networkEvidence.Add($"Toplam ağ bağlantı sayısı yüksek: {data.NetworkConnectionCount}.");
             }
 
             if (data.ListeningPortCount >= 20 && listeningPortDelta >= 5)
             {
-                exposureThreatScore += data.ListeningPortCount >= 25 && listeningPortDelta >= 8
-                    ? 35
-                    : 20;
+                exposureThreatScore += ScaledScore(data.ListeningPortCount, 20, 50, 10, 24);
+                exposureThreatScore += ScaledScore(listeningPortDelta, 5, 30, 10, 21);
                 exposureEvidence.Add($"Dinleyen port sayısı önceki kayda göre belirgin arttı: +{listeningPortDelta}.");
                 exposureEvidence.Add($"Toplam dinleyen port sayısı yüksek seviyeye ulaştı: {data.ListeningPortCount} port.");
             }
@@ -189,6 +188,27 @@ namespace SysScore.Services
             }
 
             return NoThreatLevel;
+        }
+
+        private static int ScaledScore(
+            double value,
+            double warningThreshold,
+            double severeThreshold,
+            int minimumScore,
+            int maximumScore)
+        {
+            if (value <= warningThreshold)
+            {
+                return minimumScore;
+            }
+
+            if (value >= severeThreshold)
+            {
+                return maximumScore;
+            }
+
+            double ratio = (value - warningThreshold) / (severeThreshold - warningThreshold);
+            return minimumScore + (int)Math.Round(ratio * (maximumScore - minimumScore));
         }
     }
 }
